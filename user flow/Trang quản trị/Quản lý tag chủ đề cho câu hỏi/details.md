@@ -1,3 +1,4 @@
+II. User Flow Chi Tiết Từng Bước
 Quản trị viên truy cập vào hệ thống quản trị và đăng nhập bằng tài khoản có quyền quản trị. Sau khi đăng nhập thành công, hệ thống hiển thị trang Dashboard quản trị với các chức năng quản lý dữ liệu của hệ thống.
 -> Tại giao diện quản trị, quản trị viên chọn chức năng Quản lý câu hỏi. Hệ thống chuyển đến trang danh sách câu hỏi và thực hiện truy vấn dữ liệu từ bảng questions trong cơ sở dữ liệu để hiển thị danh sách các câu hỏi hiện có trong hệ thống.
 -> Quản trị viên chọn một câu hỏi cụ thể để quản lý các chủ đề (Tag) liên quan đến câu hỏi đó. Hệ thống sẽ truy vấn dữ liệu từ bảng question_tags kết hợp với bảng tags để hiển thị danh sách các Tag chủ đề đã được gắn cho câu hỏi. Các Tag có thể là các chủ đề trong IELTS như Education, Environment, Technology, Health.
