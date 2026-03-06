@@ -1,3 +1,4 @@
+II. User Flow Chi Tiết Từng Bước
 Người dùng truy cập vào Trang chủ của hệ thống học và thi IELTS. Tại đây, người dùng thực hiện đăng nhập tài khoản cá nhân để sử dụng các chức năng của hệ thống.
 Sau khi người dùng nhập tên đăng nhập và mật khẩu, hệ thống tiến hành kiểm tra thông tin đăng nhập trong cơ sở dữ liệu.
 → Trường hợp thông tin đăng nhập không chính xác:
