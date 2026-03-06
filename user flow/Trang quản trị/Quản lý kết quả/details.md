@@ -1,4 +1,4 @@
-I. User Flow Tổng Quan – Quản Lý kết quả (Admin)
+II. User Flow Chi Tiết Từng Bước
 Admin truy cập Trang quản trị hệ thống 
 → Admin đăng nhập bằng tài khoản quản trị → Hệ thống kiểm tra thông tin đăng nhập.
 Trường hợp sai thông tin đăng nhập 
