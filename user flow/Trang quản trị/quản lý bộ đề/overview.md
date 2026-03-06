@@ -1,4 +1,4 @@
-I. User Flow Tổng Quan – Quản Lý Câu Hỏi (Admin)
+I. User Flow Tổng Quan – Quản Lý bộ đề (Admin)
 
 Admin truy cập Trang quản trị → Admin đăng nhập tài khoản quản trị → Hệ thống kiểm tra thông tin đăng nhập
 Sai thông tin
