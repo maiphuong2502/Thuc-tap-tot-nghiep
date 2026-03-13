@@ -15,11 +15,11 @@ Nếu không có quyền quản trị:
 2. Truy cập danh mục quản lý loại đề thi
 Tại Dashboard quản trị, hệ thống hiển thị các danh mục quản lý.
 Quản trị viên chọn:
-Quản lý loại đề thi (Test Categories)
+Quản lý loại đề thi (exam_type)
 Hệ thống chuyển đến trang danh sách loại đề thi.
 
 3. Hiển thị danh sách loại đề thi
-Hệ thống truy vấn dữ liệu từ bảng test_categories.
+Hệ thống truy vấn dữ liệu từ bảng exam_type.
 Sau đó hiển thị danh sách loại đề thi.
 Thông tin hiển thị gồm:
 •	Tên loại đề thi
@@ -42,7 +42,7 @@ Các trường cần nhập:
 Quản trị viên nhập thông tin và nhấn Lưu.
 Hệ thống thực hiện:
 •	Kiểm tra dữ liệu hợp lệ
-•	Lưu dữ liệu vào bảng test_categories
+•	Lưu dữ liệu vào bảng exam_type
 Sau khi lưu thành công:
 → Hệ thống hiển thị thông báo thêm thành công
 → Cập nhật lại danh sách loại đề thi.
@@ -56,7 +56,7 @@ Quản trị viên có thể thay đổi:
 Sau khi chỉnh sửa, quản trị viên nhấn Lưu.
 Hệ thống thực hiện:
 •	Kiểm tra dữ liệu hợp lệ
-•	Cập nhật dữ liệu trong bảng test_categories
+•	Cập nhật dữ liệu trong bảng exam_type
 Sau khi cập nhật thành công:
 → Hệ thống hiển thị thông báo cập nhật thành công
 → Cập nhật lại danh sách loại đề thi.
@@ -66,7 +66,6 @@ Quản trị viên chọn Xóa tại một loại đề thi.
 Hệ thống hiển thị hộp thoại xác nhận.
 Quản trị viên xác nhận xóa.
 Hệ thống thực hiện:
-•	Kiểm tra xem loại đề thi có đang được sử dụng trong bảng tests hay không.
 Trường hợp 1: Loại đề đang được sử dụng
 Hệ thống không cho phép xóa.
 Hiển thị thông báo rằng loại đề đang được sử dụng.
