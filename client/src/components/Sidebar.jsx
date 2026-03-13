@@ -15,8 +15,8 @@ export default function Sidebar({ page, setPage, collapsed, setCollapsed }) {
     <aside style={{
       width: collapsed ? 68 : 238,
       minWidth: collapsed ? 68 : 238,
-      background: "linear-gradient(180deg,#111827 0%,#0b1120 100%)",
-      borderRight: "1px solid rgba(255,255,255,.06)",
+      background: "#ffffff",
+      borderRight: "1px solid rgba(148,163,184,.4)",
       display: "flex",
       flexDirection: "column",
       transition: "all .3s ease",
@@ -25,7 +25,7 @@ export default function Sidebar({ page, setPage, collapsed, setCollapsed }) {
       <div style={{
         padding: collapsed ? "22px 15px" : "22px 20px",
         display: "flex", alignItems: "center", gap: 12,
-        borderBottom: "1px solid rgba(255,255,255,.06)",
+        borderBottom: "1px solid rgba(226,232,240,1)",
       }}>
         <div style={{
           width: 38, height: 38, borderRadius: 11, flexShrink: 0,
@@ -34,8 +34,8 @@ export default function Sidebar({ page, setPage, collapsed, setCollapsed }) {
         }}>🎓</div>
         {!collapsed && (
           <div>
-            <div style={{ fontWeight: 800, fontSize: 15, color: "#f1f5f9", letterSpacing: "-0.4px" }}>QLThiTA</div>
-            <div style={{ fontSize: 10, color: "#475569" }}>Admin Panel</div>
+            <div style={{ fontWeight: 800, fontSize: 15, color: "#0f172a", letterSpacing: "-0.4px" }}>QLThiTA</div>
+            <div style={{ fontSize: 10, color: "#64748b" }}>Admin Panel</div>
           </div>
         )}
       </div>
@@ -50,8 +50,8 @@ export default function Sidebar({ page, setPage, collapsed, setCollapsed }) {
               padding: collapsed ? "11px 0" : "10px 14px",
               justifyContent: collapsed ? "center" : "flex-start",
               borderRadius: 10, border: "none", cursor: "pointer",
-              background: active ? "rgba(56,189,248,.12)" : "transparent",
-              color: active ? "#38bdf8" : "#64748b",
+              background: active ? "rgba(59,130,246,.12)" : "transparent",
+              color: active ? "#2563eb" : "#4b5563",
               fontSize: 13, fontWeight: active ? 700 : 400,
               transition: "all .18s",
               boxShadow: active ? "inset 3px 0 0 #38bdf8" : "none",
@@ -64,11 +64,11 @@ export default function Sidebar({ page, setPage, collapsed, setCollapsed }) {
       </nav>
 
       {/* Collapse button */}
-      <div style={{ padding: "14px 10px", borderTop: "1px solid rgba(255,255,255,.06)" }}>
+      <div style={{ padding: "14px 10px", borderTop: "1px solid rgba(226,232,240,1)" }}>
         <button onClick={() => setCollapsed(!collapsed)} style={{
           width: "100%", padding: "9px", borderRadius: 10,
-          border: "1px solid rgba(255,255,255,.08)", background: "rgba(255,255,255,.04)",
-          color: "#475569", cursor: "pointer", fontSize: 13,
+          border: "1px solid rgba(148,163,184,.6)", background: "#f9fafb",
+          color: "#4b5563", cursor: "pointer", fontSize: 13,
         }}>
           {collapsed ? "→" : "← Thu gọn"}
         </button>

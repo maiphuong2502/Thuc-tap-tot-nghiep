@@ -19,41 +19,62 @@ export default function Calendar() {
 
   return (
     <div style={{
-      background: "rgba(255,255,255,.03)",
-      border: "1px solid rgba(255,255,255,.07)",
-      borderRadius: 18, padding: 28,
+      background: "#ffffff",
+      border: "1px solid rgba(209,213,219,1)",
+      borderRadius: 18,
+      padding: 24,
+      boxShadow: "0 10px 25px rgba(15,23,42,.04)",
     }}>
       {/* Header tháng */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
         <button
           onClick={() => setCurrent(new Date(year, month - 1, 1))}
           style={{
-            width: 34, height: 34, borderRadius: 9,
-            border: "1px solid rgba(255,255,255,.1)",
-            background: "rgba(255,255,255,.05)",
-            color: "#94a3b8", cursor: "pointer", fontSize: 18, lineHeight: 1,
+            width: 32,
+            height: 32,
+            borderRadius: 999,
+            border: "1px solid rgba(209,213,219,1)",
+            background: "#f9fafb",
+            color: "#4b5563",
+            cursor: "pointer",
+            fontSize: 18,
+            lineHeight: 1,
           }}>‹</button>
-        <div style={{ fontSize: 17, fontWeight: 700, color: "#f1f5f9" }}>
+        <div style={{ fontSize: 17, fontWeight: 700, color: "#111827" }}>
           Tháng {month + 1} năm {year}
         </div>
         <button
           onClick={() => setCurrent(new Date(year, month + 1, 1))}
           style={{
-            width: 34, height: 34, borderRadius: 9,
-            border: "1px solid rgba(255,255,255,.1)",
-            background: "rgba(255,255,255,.05)",
-            color: "#94a3b8", cursor: "pointer", fontSize: 18, lineHeight: 1,
+            width: 32,
+            height: 32,
+            borderRadius: 999,
+            border: "1px solid rgba(209,213,219,1)",
+            background: "#f9fafb",
+            color: "#4b5563",
+            cursor: "pointer",
+            fontSize: 18,
+            lineHeight: 1,
           }}>›</button>
       </div>
 
       {/* Tên ngày trong tuần */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", marginBottom: 10 }}>
         {DAYS.map(d => (
-          <div key={d} style={{
-            textAlign: "center", fontSize: 12, fontWeight: 600,
-            color: d === "CN" || d === "T7" ? "#f87171" : "#475569",
-            padding: "4px 0",
-          }}>{d}</div>
+          <div
+            key={d}
+            style={{
+              textAlign: "center",
+              fontSize: 12,
+              fontWeight: 600,
+              color: d === "CN" || d === "T7" ? "#dc2626" : "#6b7280",
+              padding: "4px 0",
+              textTransform: "uppercase",
+              letterSpacing: 0.5,
+            }}
+          >
+            {d}
+          </div>
         ))}
       </div>
 
@@ -69,18 +90,38 @@ export default function Calendar() {
             year  === realToday.getFullYear();
 
           return (
-            <div key={i} style={{
-              height: 44, borderRadius: 10,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 14, fontWeight: isToday ? 700 : 400,
-              cursor: "default",
-              border:      isToday ? "2px solid #38bdf8" : "1px solid transparent",
-              background:  isToday ? "rgba(56,189,248,.15)" : "transparent",
-              color:       isToday ? "#38bdf8" : isWeekend ? "#f87171" : "#94a3b8",
-              transition: "background .15s",
-            }}
-              onMouseEnter={e => { if (!isToday) e.currentTarget.style.background = "rgba(255,255,255,.05)"; }}
-              onMouseLeave={e => { if (!isToday) e.currentTarget.style.background = "transparent"; }}
+            <div
+              key={i}
+              style={{
+                height: 40,
+                borderRadius: 10,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 13,
+                fontWeight: isToday ? 700 : 400,
+                cursor: "default",
+                border: isToday
+                  ? "2px solid #2563eb"
+                  : "1px solid rgba(229,231,235,1)",
+                background: isToday ? "#dbeafe" : "#ffffff",
+                color: isToday
+                  ? "#1d4ed8"
+                  : isWeekend
+                  ? "#dc2626"
+                  : "#374151",
+                transition: "background .15s, color .15s, border-color .15s",
+              }}
+              onMouseEnter={(e) => {
+                if (!isToday) {
+                  e.currentTarget.style.background = "#f3f4f6";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isToday) {
+                  e.currentTarget.style.background = "#ffffff";
+                }
+              }}
             >
               {day}
             </div>

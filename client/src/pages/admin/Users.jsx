@@ -210,7 +210,7 @@ export default function Users() {
               margin: 0,
               fontSize: 20,
               fontWeight: 700,
-              color: "#e5e7eb",
+              color: "#0f172a",
             }}
           >
             Quản lý tài khoản
@@ -219,7 +219,7 @@ export default function Users() {
             style={{
               margin: "6px 0 0",
               fontSize: 13,
-              color: "#9ca3af",
+              color: "#6b7280",
             }}
           >
             Xem danh sách tài khoản, thêm mới và chỉnh sửa thông tin của chính
@@ -254,9 +254,9 @@ export default function Users() {
           style={{
             padding: "10px 14px",
             borderRadius: 10,
-            background: "rgba(239,68,68,.08)",
-            border: "1px solid rgba(239,68,68,.35)",
-            color: "#fecaca",
+            background: "#fef2f2",
+            border: "1px solid #fecaca",
+            color: "#b91c1c",
             fontSize: 13,
           }}
         >
@@ -267,16 +267,16 @@ export default function Users() {
       {/* List */}
       <div
         style={{
-          background: "rgba(15,23,42,.9)",
+          background: "#ffffff",
           borderRadius: 18,
-          border: "1px solid rgba(148,163,184,.25)",
+          border: "1px solid rgba(209,213,219,1)",
           overflow: "hidden",
         }}
       >
         <div
           style={{
             padding: "14px 18px",
-            borderBottom: "1px solid rgba(148,163,184,.25)",
+            borderBottom: "1px solid rgba(229,231,235,1)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -285,11 +285,11 @@ export default function Users() {
           <span
             style={{
               fontSize: 13,
-              color: "#9ca3af",
+              color: "#6b7280",
             }}
           >
             Tổng cộng:{" "}
-            <strong style={{ color: "#e5e7eb" }}>{users.length}</strong> tài
+            <strong style={{ color: "#111827" }}>{users.length}</strong> tài
             khoản
           </span>
           {loading && (
@@ -312,8 +312,8 @@ export default function Users() {
             <thead>
               <tr
                 style={{
-                  background: "rgba(15,23,42,1)",
-                  color: "#9ca3af",
+                  background: "#f9fafb",
+                  color: "#6b7280",
                   textAlign: "left",
                 }}
               >
@@ -357,20 +357,17 @@ export default function Users() {
                   <tr
                     key={user.user_id}
                     style={{
-                      borderTop: "1px solid rgba(31,41,55,1)",
-                      background:
-                        index % 2 === 0
-                          ? "rgba(15,23,42,1)"
-                          : "rgba(15,23,42,.96)",
+                      borderTop: "1px solid rgba(229,231,235,1)",
+                      background: index % 2 === 0 ? "#ffffff" : "#f9fafb",
                     }}
                   >
-                    <td style={{ padding: "9px 18px", color: "#9ca3af" }}>
+                    <td style={{ padding: "9px 18px", color: "#6b7280" }}>
                       {index + 1}
                     </td>
-                    <td style={{ padding: "9px 18px", color: "#e5e7eb" }}>
+                    <td style={{ padding: "9px 18px", color: "#111827" }}>
                       {user.username}
                     </td>
-                    <td style={{ padding: "9px 18px", color: "#9ca3af" }}>
+                    <td style={{ padding: "9px 18px", color: "#4b5563" }}>
                       {user.email}
                     </td>
                     <td style={{ padding: "9px 18px" }}>
@@ -445,13 +442,15 @@ export default function Users() {
                               type="button"
                               onClick={() => openEdit(user)}
                               style={{
-                                padding: "6px 12px",
+                                padding: "6px 14px",
                                 borderRadius: 999,
-                                border: "1px solid rgba(59,130,246,.6)",
-                                background: "rgba(37,99,235,.15)",
-                                color: "#bfdbfe",
+                                border: "none",
+                                background: "#2563eb",
+                                color: "#ffffff",
                                 fontSize: 12,
+                                fontWeight: 600,
                                 cursor: "pointer",
+                                boxShadow: "0 1px 2px rgba(15,23,42,.15)",
                               }}
                             >
                               Sửa
@@ -462,13 +461,15 @@ export default function Users() {
                               type="button"
                               onClick={() => handleDelete(user)}
                               style={{
-                                padding: "6px 12px",
+                                padding: "6px 14px",
                                 borderRadius: 999,
-                                border: "1px solid rgba(248,113,113,.7)",
-                                background: "rgba(248,113,113,.12)",
-                                color: "#fecaca",
+                                border: "none",
+                                background: "#ef4444",
+                                color: "#ffffff",
                                 fontSize: 12,
+                                fontWeight: 600,
                                 cursor: "pointer",
+                                boxShadow: "0 1px 2px rgba(15,23,42,.15)",
                               }}
                             >
                               Xóa

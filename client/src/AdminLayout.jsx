@@ -5,6 +5,7 @@ import META        from "./constants/meta";
 import Dashboard   from "./pages/admin/Dashboard";
 import Users       from "./pages/admin/Users";
 import Placeholder from "./pages/admin/Placeholder";
+import Skill from "./pages/admin/Skill";
 
 export default function AdminLayout() {
   const [page,      setPage]      = useState("dashboard");
@@ -13,6 +14,7 @@ export default function AdminLayout() {
   const renderPage = () => {
     if (page === "dashboard") return <Dashboard />;
     if (page === "users")     return <Users />;
+    if (page === "skill")     return <Skill />;
     return <Placeholder title={META[page]} />;
   };
 
@@ -20,7 +22,7 @@ export default function AdminLayout() {
     <div style={{
       display: "flex", height: "100vh",
       fontFamily: "'DM Sans','Segoe UI',sans-serif",
-      background: "#0b1120", color: "#e2e8f0", overflow: "hidden",
+      background: "#f3f4f6", color: "#111827", overflow: "hidden",
     }}>
       <Sidebar
         page={page}

@@ -261,10 +261,12 @@ export default function Dashboard() {
 
       {/* Welcome banner */}
       <div style={{
-        background: "linear-gradient(135deg,rgba(56,189,248,.15) 0%,rgba(99,102,241,.1) 100%)",
-        border: "1px solid rgba(56,189,248,.22)",
-        borderRadius: 18, padding: "28px 32px",
-        position: "relative", overflow: "hidden",
+        background: "linear-gradient(135deg,#eff6ff 0%,#e0f2fe 45%,#f5f3ff 100%)",
+        border: "1px solid rgba(191,219,254,1)",
+        borderRadius: 18,
+        padding: "28px 32px",
+        position: "relative",
+        overflow: "hidden",
       }}>
         <div style={{
           position: "absolute", top: -50, right: -50,
@@ -272,31 +274,39 @@ export default function Dashboard() {
           background: "rgba(56,189,248,.07)", pointerEvents: "none",
         }} />
         <div style={{ position: "relative" }}>
-          <div style={{ fontSize: 13, color: "#38bdf8", fontWeight: 600, marginBottom: 6 }}>
+          <div style={{ fontSize: 13, color: "#1d4ed8", fontWeight: 600, marginBottom: 6 }}>
             {greeting} 👋
           </div>
-          <h2 style={{ margin: "0 0 8px", fontSize: 24, fontWeight: 800, color: "#f1f5f9", letterSpacing: "-0.5px" }}>
-            Chào mừng trở lại, <span style={{ color: "#38bdf8" }}>Admin</span>!
+          <h2 style={{ margin: "0 0 8px", fontSize: 24, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px" }}>
+            Chào mừng trở lại, <span style={{ color: "#1d4ed8" }}>Admin</span>!
           </h2>
-          <p style={{ margin: "0 0 18px", fontSize: 14, color: "#94a3b8", lineHeight: 1.7, maxWidth: 500 }}>
+          <p style={{ margin: "0 0 18px", fontSize: 14, color: "#4b5563", lineHeight: 1.7, maxWidth: 500 }}>
             Đây là trang quản trị hệ thống{" "}
-            <strong style={{ color: "#cbd5e1" }}>Quản lý Thi Tiếng Anh</strong>.
+            <strong style={{ color: "#111827" }}>Quản lý Thi Tiếng Anh</strong>.
             Sử dụng menu bên trái để quản lý bộ đề, câu hỏi, đáp án và kết quả thi.
           </p>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <div style={{
-              padding: "6px 16px", borderRadius: 20, fontSize: 12, fontWeight: 600,
-              background: "rgba(56,189,248,.12)", color: "#38bdf8",
-              border: "1px solid rgba(56,189,248,.22)",
+              padding: "6px 16px",
+              borderRadius: 999,
+              fontSize: 12,
+              fontWeight: 600,
+              background: "#1d4ed8",
+              color: "#eff6ff",
+              border: "1px solid #1d4ed8",
             }}>
               📅 {new Date().toLocaleDateString("vi-VN", {
                 weekday: "long", day: "2-digit", month: "2-digit", year: "numeric",
               })}
             </div>
             <div style={{
-              padding: "6px 16px", borderRadius: 20, fontSize: 12, fontWeight: 600,
-              background: "rgba(52,211,153,.1)", color: "#34d399",
-              border: "1px solid rgba(52,211,153,.2)",
+              padding: "6px 16px",
+              borderRadius: 999,
+              fontSize: 12,
+              fontWeight: 600,
+              background: "#16a34a",
+              color: "#ecfdf5",
+              border: "1px solid #15803d",
             }}>
               🟢 Hệ thống hoạt động bình thường
             </div>
