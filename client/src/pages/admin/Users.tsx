@@ -63,7 +63,7 @@ export default function Users() {
     setLoading(true);
     setError("");
     try {
-      const res = await userService.list();
+      const res: any = await userService.list();
       if (res?.success && Array.isArray(res.data)) {
         setUsers(res.data);
       } else {
@@ -139,7 +139,7 @@ export default function Users() {
     if (!editForm.user_id) return;
     setError("");
     try {
-      const payload = {
+      const payload: any = {
         username: editForm.username.trim(),
         email: editForm.email.trim(),
         role: Number(editForm.role),

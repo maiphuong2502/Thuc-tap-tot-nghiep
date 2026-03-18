@@ -1,0 +1,13 @@
+﻿src/pages/admin/Dashboard.tsx(143,10): error TS2322: Type '{ background: string; border: string; borderRadius: number; padding: number; position: string; overflow: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/admin/Dashboard.tsx(153,10): error TS2322: Type '{ background: string; border: string; borderRadius: number; padding: number; position: string; overflow: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/admin/Dashboard.tsx(173,10): error TS2322: Type '{ background: string; border: string; borderRadius: number; padding: number; position: string; overflow: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/admin/Skill.tsx(21,16): error TS2339: Property 'success' does not exist on type 'AxiosResponse<any, any, {}>'.
+src/pages/admin/Users.tsx(67,16): error TS2339: Property 'success' does not exist on type 'AxiosResponse<any, any, {}>'.
+src/pages/admin/Users.tsx(149,17): error TS2339: Property 'password' does not exist on type '{ username: string; email: string; role: number; status: number; }'.
+src/pages/Login.tsx(19,16): error TS2339: Property 'success' does not exist on type 'AxiosResponse<any, any, {}>'.

@@ -15,7 +15,7 @@ function Login() {
     setError('');
     setLoading(true);
     try {
-      const res = await authService.login(username, password);
+      const res: any = await authService.login(username, password);
       if (res?.success && res?.data?.token) {
         localStorage.setItem('access_token', res.data.token);
         if (res.data.user) {

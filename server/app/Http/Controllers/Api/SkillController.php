@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Skill;
+use App\Services\SkillServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -11,6 +11,13 @@ class SkillController extends Controller
 {
 
     private const ROLE_ADMIN = 0;
+
+    protected $skillService;
+
+    public function __construct(SkillServiceInterface $skillService)
+    {
+        $this->skillService = $skillService;
+    }
 
     /**
      * Lấy danh sách kỹ năng.
@@ -26,9 +33,7 @@ class SkillController extends Controller
             ], 403);
         }
 
-        $skills = Skill::query()
-            ->orderBy('id')
-            ->get(['id', 'skill_name', 'description']);
+        $skills = $this->skillService->getSkillsList();
 
         return response()->json([
             'success' => true,

@@ -77,7 +77,7 @@ async function fetchWeatherData(lat, lon) {
 }
 
 /* ── WeatherWidget ──────────────────────────────────────────────── */
-const cardStyle = {
+const cardStyle: any = {
   background: "linear-gradient(135deg,#162440 0%,#0e1c35 60%,#131428 100%)",
   border: "1px solid rgba(148,193,255,.1)",
   borderRadius: 16, padding: 22,

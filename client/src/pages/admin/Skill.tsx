@@ -17,7 +17,7 @@ export default function Skill() {
     setLoading(true);
     setError("");
     try {
-      const res = await skillService.list();
+      const res: any = await skillService.list();
       if (res?.success && Array.isArray(res.data)) {
         setSkills(res.data);
       } else {
