@@ -1,9 +1,11 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore } from "@reduxjs/toolkit"
 
-const store = configureStore({
+export const store = configureStore({
   reducer: {
-    // Sẽ thêm reducers sau
-  },
-});
+    // reducers của bạn
+  }
+})
 
-export default store;
+// ✅ THÊM 2 DÒNG NÀY
+export type RootState = ReturnType<typeof store.getState>
+export type AppDispatch = typeof store.dispatch

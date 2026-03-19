@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Services\UserServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -12,23 +12,21 @@ class UserController extends Controller
 {
     private const ROLE_ADMIN = 0;
 
+    protected $userService;
+
+    public function __construct(UserServiceInterface $userService)
+    {
+        $this->userService = $userService;
+    }
+
     /**
      * Danh sách tài khoản.
      * Chỉ admin được phép xem.
      */
-    public function index(Request $request): JsonResponse
+    public function index(): JsonResponse
     {
-        $authUser = $request->user();
-        if (!$authUser || (int) $authUser->role !== self::ROLE_ADMIN) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Bạn không có quyền truy cập chức năng này.',
-            ], 403);
-        }
 
-        $users = User::query()
-            ->orderByDesc('created_at')
-            ->get(['user_id', 'username', 'email', 'role', 'status', 'created_at']);
+        $users = $this->userService->getUsersList();
 
         return response()->json([
             'success' => true,
@@ -42,13 +40,6 @@ class UserController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $authUser = $request->user();
-        if (!$authUser || (int) $authUser->role !== self::ROLE_ADMIN) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Bạn không có quyền truy cập chức năng này.',
-            ], 403);
-        }
 
         $validated = $request->validate([
             'username' => ['required', 'string', 'max:50'],
@@ -58,8 +49,7 @@ class UserController extends Controller
             'status'   => ['required', 'integer', Rule::in([0, 1])],
         ]);
 
-        // Lưu mật khẩu dạng thuần theo thiết kế hiện tại
-        $user = User::create([
+        $user = $this->userService->createUser([
             'username' => $validated['username'],
             'email'    => $validated['email'],
             'password' => $validated['password'],
@@ -91,22 +81,6 @@ class UserController extends Controller
     public function update(Request $request, int $userId): JsonResponse
     {
         $authUser = $request->user();
-        if (!$authUser || (int) $authUser->role !== self::ROLE_ADMIN) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Bạn không có quyền truy cập chức năng này.',
-            ], 403);
-        }
-
-        $user = User::findOrFail($userId);
-
-        // Nếu tài khoản mục tiêu là admin khác -> không cho phép
-        if ($authUser->user_id !== $user->user_id && (int) $user->role === self::ROLE_ADMIN) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Bạn không được phép sửa tài khoản admin khác.',
-            ], 403);
-        }
 
         $validated = $request->validate([
             'username' => ['sometimes', 'required', 'string', 'max:50'],
@@ -115,44 +89,35 @@ class UserController extends Controller
                 'required',
                 'email',
                 'max:100',
-                Rule::unique('users', 'email')->ignore($user->user_id, 'user_id'),
+                Rule::unique('users', 'email')->ignore($userId, 'user_id'),
             ],
             'password' => ['sometimes', 'nullable', 'string', 'min:4'],
-            // Cho phép admin tự đổi role/status của chính mình nếu cần,
-            // nhưng vẫn giới hạn giá trị hợp lệ.
             'role'     => ['sometimes', 'required', 'integer', Rule::in([0, 1])],
             'status'   => ['sometimes', 'required', 'integer', Rule::in([0, 1])],
         ]);
 
-        if (array_key_exists('username', $validated)) {
-            $user->username = $validated['username'];
-        }
-        if (array_key_exists('email', $validated)) {
-            $user->email = $validated['email'];
-        }
-        if (array_key_exists('role', $validated)) {
-            $user->role = $validated['role'];
-        }
-        if (array_key_exists('status', $validated)) {
-            $user->status = $validated['status'];
-        }
-        if (array_key_exists('password', $validated) && $validated['password'] !== null) {
-            $user->password = $validated['password'];
-        }
+        // Filter out null password or unnecessary fields if needed, 
+        // the validation already ensures what we get is valid.
+        $data = array_filter($validated, function($value, $key) {
+            if ($key === 'password' && $value === null) {
+                return false;
+            }
+            return true;
+        }, ARRAY_FILTER_USE_BOTH);
 
-        $user->save();
+        $result = $this->userService->updateUser($userId, $data, $authUser);
+
+        if (!$result['success']) {
+            return response()->json([
+                'success' => false,
+                'message' => $result['message'],
+            ], $result['status_code'] ?? 400);
+        }
 
         return response()->json([
             'success' => true,
-            'message' => 'Cập nhật tài khoản thành công.',
-            'data' => [
-                'user_id'  => $user->user_id,
-                'username' => $user->username,
-                'email'    => $user->email,
-                'role'     => $user->role,
-                'status'   => $user->status,
-                'created_at' => $user->created_at,
-            ],
+            'message' => $result['message'],
+            'data' => $result['data'],
         ]);
     }
 
@@ -163,28 +128,19 @@ class UserController extends Controller
     public function destroy(Request $request, int $userId): JsonResponse
     {
         $authUser = $request->user();
-        if (!$authUser || (int) $authUser->role !== self::ROLE_ADMIN) {
+
+        $result = $this->userService->deleteUser($userId, $authUser);
+
+        if (!$result['success']) {
             return response()->json([
                 'success' => false,
-                'message' => 'Bạn không có quyền truy cập chức năng này.',
-            ], 403);
+                'message' => $result['message'],
+            ], $result['status_code'] ?? 400);
         }
-
-        $user = User::findOrFail($userId);
-
-        if ((int) $user->role === self::ROLE_ADMIN) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Bạn không được phép xóa tài khoản admin.',
-            ], 403);
-        }
-
-        $user->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'Xóa tài khoản thành công.',
+            'message' => $result['message'],
         ]);
     }
 }
-

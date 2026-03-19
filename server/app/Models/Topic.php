@@ -5,16 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ExamType extends Model
+class Topic extends Model
 {
     use HasFactory;
 
-    protected $table = 'exam_type';
-    protected $primaryKey = 'category_id';
+    protected $table = 'topics';
+    protected $primaryKey = 'topic_id';
     public $timestamps = false;
 
     protected $fillable = [
-        'category_name',
+        'topic_name',
         'description',
     ];
 }

@@ -6,6 +6,7 @@ import Dashboard   from "./pages/admin/Dashboard";
 import Users       from "./pages/admin/Users";
 import Placeholder from "./pages/admin/Placeholder";
 import Skill from "./pages/admin/Skill";
+import Topic from "./pages/admin/Topic";
 
 export default function AdminLayout() {
   const [page,      setPage]      = useState("dashboard");
@@ -15,6 +16,7 @@ export default function AdminLayout() {
     if (page === "dashboard") return <Dashboard />;
     if (page === "users")     return <Users />;
     if (page === "skill")     return <Skill />;
+    if (page === "topic")     return <Topic />;
     return <Placeholder title={META[page]} />;
   };
 

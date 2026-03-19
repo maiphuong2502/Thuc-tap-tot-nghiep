@@ -23,15 +23,8 @@ class SkillController extends Controller
      * Lấy danh sách kỹ năng.
      * Chỉ admin được phép xem.
      */
-    public function index(Request $request): JsonResponse
+    public function index(): JsonResponse
     {
-        $authUser = $request->user();
-        if (!$authUser || (int) $authUser->role !== self::ROLE_ADMIN) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Bạn không có quyền truy cập chức năng này.',
-            ], 403);
-        }
 
         $skills = $this->skillService->getSkillsList();
 
