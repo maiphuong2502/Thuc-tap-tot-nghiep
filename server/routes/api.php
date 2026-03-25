@@ -26,5 +26,29 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/topics/{id}', [TopicController::class, 'update']);
         Route::delete('/topics/{id}', [TopicController::class, 'destroy']);
 
+        // Passages
+        Route::get('/passages', [\App\Http\Controllers\Api\PassageController::class, 'index']);
+        Route::post('/passages', [\App\Http\Controllers\Api\PassageController::class, 'store']);
+        Route::put('/passages/{id}', [\App\Http\Controllers\Api\PassageController::class, 'update']);
+        Route::delete('/passages/{id}', [\App\Http\Controllers\Api\PassageController::class, 'destroy']);
+
+        // Audios
+        Route::get('/audios', [\App\Http\Controllers\Api\AudioController::class, 'index']);
+        Route::post('/audios', [\App\Http\Controllers\Api\AudioController::class, 'store']);
+        Route::put('/audios/{id}', [\App\Http\Controllers\Api\AudioController::class, 'update']);
+        Route::delete('/audios/{id}', [\App\Http\Controllers\Api\AudioController::class, 'destroy']);
+
+        // Tests
+        Route::get('/tests', [\App\Http\Controllers\Api\TestController::class, 'index']);
+        Route::post('/tests', [\App\Http\Controllers\Api\TestController::class, 'store']);
+        Route::put('/tests/{id}', [\App\Http\Controllers\Api\TestController::class, 'update']);
+        Route::delete('/tests/{id}', [\App\Http\Controllers\Api\TestController::class, 'destroy']);
+
+        // Test Parts
+        Route::get('/test-parts', [\App\Http\Controllers\TestPartController::class, 'index']);
+        Route::post('/test-parts', [\App\Http\Controllers\TestPartController::class, 'store']);
+        Route::get('/test-parts/{id}', [\App\Http\Controllers\TestPartController::class, 'show']);
+        Route::put('/test-parts/{id}', [\App\Http\Controllers\TestPartController::class, 'update']);
+        Route::delete('/test-parts/{id}', [\App\Http\Controllers\TestPartController::class, 'destroy']);
     });
 });

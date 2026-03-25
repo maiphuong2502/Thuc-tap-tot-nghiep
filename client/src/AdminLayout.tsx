@@ -7,6 +7,10 @@ import Users       from "./pages/admin/Users";
 import Placeholder from "./pages/admin/Placeholder";
 import Skill from "./pages/admin/Skill";
 import Topic from "./pages/admin/Topic";
+import Passage from "./pages/admin/Passage";
+import Audio from "./pages/admin/Audio";
+import Test from "./pages/admin/Test";
+import TestPart from "./pages/admin/TestPart";
 
 export default function AdminLayout() {
   const [page,      setPage]      = useState("dashboard");
@@ -17,6 +21,10 @@ export default function AdminLayout() {
     if (page === "users")     return <Users />;
     if (page === "skill")     return <Skill />;
     if (page === "topic")     return <Topic />;
+    if (page === "passage")   return <Passage />;
+    if (page === "audio")     return <Audio />;
+    if (page === "examset")   return <Test />;
+    if (page === "testpart")  return <TestPart />;
     return <Placeholder title={META[page]} />;
   };
 

@@ -41,6 +41,45 @@ class AppServiceProvider extends ServiceProvider
             \App\Services\TopicService::class
         );
 
+        $this->app->bind(
+            \App\Repositories\PassageRepositoryInterface::class,
+            \App\Repositories\PassageRepository::class
+        );
+
+        $this->app->bind(
+            \App\Services\PassageServiceInterface::class,
+            \App\Services\PassageService::class
+        );
+
+        $this->app->bind(
+            \App\Repositories\AudioRepositoryInterface::class,
+            \App\Repositories\AudioRepository::class
+        );
+
+        $this->app->bind(
+            \App\Services\AudioServiceInterface::class,
+            \App\Services\AudioService::class
+        );
+
+        $this->app->bind(
+            \App\Repositories\TestRepositoryInterface::class,
+            \App\Repositories\TestRepository::class
+        );
+
+        $this->app->bind(
+            \App\Services\TestServiceInterface::class,
+            \App\Services\TestService::class
+        );
+
+        $this->app->bind(
+            \App\Repositories\TestPartRepositoryInterface::class,
+            \App\Repositories\TestPartRepository::class
+        );
+
+        $this->app->bind(
+            \App\Services\TestPartServiceInterface::class,
+            \App\Services\TestPartService::class
+        );
     }
 
     /**
