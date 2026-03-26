@@ -5,6 +5,7 @@ const META = {
   examset:   "Quản lý bộ đề",
   testpart:  "Quản lý phần thi",
   topic:     "Quản lý chủ đề",
+  question_group: "Quản lý nhóm câu hỏi",
   question:  "Quản lý câu hỏi",
   answer:    "Quản lý đáp án",
   result:    "Quản lý kết quả",

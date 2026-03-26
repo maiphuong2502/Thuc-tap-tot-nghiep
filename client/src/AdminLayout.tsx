@@ -12,6 +12,8 @@ import Audio from "./pages/admin/Audio";
 import Test from "./pages/admin/Test";
 import TestPart from "./pages/admin/TestPart";
 
+import QuestionGroup from "./pages/admin/QuestionGroup";
+
 export default function AdminLayout() {
   const [page,      setPage]      = useState("dashboard");
   const [collapsed, setCollapsed] = useState(false);
@@ -25,6 +27,7 @@ export default function AdminLayout() {
     if (page === "audio")     return <Audio />;
     if (page === "examset")   return <Test />;
     if (page === "testpart")  return <TestPart />;
+    if (page === "question_group") return <QuestionGroup />;
     return <Placeholder title={META[page]} />;
   };
 

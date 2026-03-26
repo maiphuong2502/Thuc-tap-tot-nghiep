@@ -80,9 +80,20 @@ class AppServiceProvider extends ServiceProvider
             \App\Services\TestPartServiceInterface::class,
             \App\Services\TestPartService::class
         );
+
+        $this->app->bind(
+            \App\Repositories\QuestionGroupRepositoryInterface::class,
+            \App\Repositories\QuestionGroupRepository::class
+        );
+
+        $this->app->bind(
+            \App\Services\QuestionGroupServiceInterface::class,
+            \App\Services\QuestionGroupService::class
+        );
     }
 
     /**
+
      * Bootstrap any application services.
      */
     public function boot(): void

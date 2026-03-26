@@ -7,6 +7,7 @@ const NAV = [
   { id: "audio",     icon: "🎧", label: "Quản lý Audio" },
   { id: "examset",   icon: "📚", label: "Quản lý bộ đề" },
   { id: "testpart",  icon: "🧩", label: "Quản lý phần thi bộ đề" },
+  { id: "question_group", icon: "📑", label: "Quản lý nhóm câu hỏi" },
   { id: "question",  icon: "❓", label: "Quản lý câu hỏi" },
   { id: "answer",    icon: "✅", label: "Quản lý đáp án" },
   { id: "result",    icon: "📊", label: "Quản lý kết quả" },
