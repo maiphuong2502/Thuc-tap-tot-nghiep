@@ -57,5 +57,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/question-groups/{id}', [\App\Http\Controllers\QuestionGroupController::class, 'show']);
         Route::put('/question-groups/{id}', [\App\Http\Controllers\QuestionGroupController::class, 'update']);
         Route::delete('/question-groups/{id}', [\App\Http\Controllers\QuestionGroupController::class, 'destroy']);
+
+        // Questions
+        Route::get('/questions', [\App\Http\Controllers\Api\QuestionController::class, 'index']);
+        Route::post('/questions', [\App\Http\Controllers\Api\QuestionController::class, 'store']);
+        Route::get('/questions/{id}', [\App\Http\Controllers\Api\QuestionController::class, 'show']);
+        Route::put('/questions/{id}', [\App\Http\Controllers\Api\QuestionController::class, 'update']);
+        Route::delete('/questions/{id}', [\App\Http\Controllers\Api\QuestionController::class, 'destroy']);
     });
 });

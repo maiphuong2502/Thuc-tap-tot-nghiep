@@ -90,6 +90,16 @@ class AppServiceProvider extends ServiceProvider
             \App\Services\QuestionGroupServiceInterface::class,
             \App\Services\QuestionGroupService::class
         );
+
+        $this->app->bind(
+            \App\Repositories\QuestionRepositoryInterface::class,
+            \App\Repositories\QuestionRepository::class
+        );
+
+        $this->app->bind(
+            \App\Services\QuestionServiceInterface::class,
+            \App\Services\QuestionService::class
+        );
     }
 
     /**

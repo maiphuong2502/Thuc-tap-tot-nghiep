@@ -124,9 +124,9 @@ export default function Skill() {
             {loading
               ? <span className="spinner" />
               : <span style={{
-                  fontSize: 12, color: "#94a3b8", background: "#f1f5f9",
-                  padding: "3px 10px", borderRadius: 20,
-                }}>Chỉ xem</span>
+                fontSize: 12, color: "#94a3b8", background: "#f1f5f9",
+                padding: "3px 10px", borderRadius: 20,
+              }}>Chỉ xem</span>
             }
           </div>
 
@@ -135,13 +135,13 @@ export default function Skill() {
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
               <thead>
                 <tr style={{ background: "#f8fafc" }}>
-                  {["#", "Kỹ năng", "Mô tả"].map((h, i) => (
+                  {["ID", "Kỹ năng", "Thời gian", "Mô tả"].map((h, i) => (
                     <th key={i} style={{
                       padding: "10px 20px", textAlign: "left",
                       color: "#64748b", fontWeight: 600, fontSize: 12,
                       letterSpacing: "0.05em", textTransform: "uppercase",
                       borderBottom: "1px solid #e2e8f0",
-                      width: i === 0 ? 60 : i === 1 ? 200 : "auto",
+                      width: i === 0 ? 60 : i === 1 ? 200 : i === 2 ? 120 : "auto",
                     }}>
                       {h}
                     </th>
@@ -180,7 +180,7 @@ export default function Skill() {
                       }}
                     >
                       <td style={{ padding: "13px 20px", color: "#cbd5e1", fontWeight: 600, fontSize: 12 }}>
-                        {String(index + 1).padStart(2, "0")}
+                        {skill.id}
                       </td>
                       <td style={{ padding: "13px 20px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -198,6 +198,9 @@ export default function Skill() {
                             {skill.skill_name}
                           </span>
                         </div>
+                      </td>
+                      <td style={{ padding: "13px 20px", color: "#3b82f6", fontWeight: 600 }}>
+                        {skill.time_limit ? `${skill.time_limit} phút` : <span style={{ color: "#cbd5e1", fontStyle: "italic", fontWeight: 400 }}>Chưa đặt</span>}
                       </td>
                       <td style={{ padding: "13px 20px", color: "#64748b", lineHeight: 1.6 }}>
                         {skill.description || <span style={{ color: "#cbd5e1", fontStyle: "italic" }}>Chưa có mô tả</span>}

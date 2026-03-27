@@ -1,7 +1,8 @@
 export interface ISkill {
-  id: number;
+  id: string;
   skill_name: string;
   description: string | null;
+  time_limit?: number;
   created_at?: string;
   updated_at?: string;
 }

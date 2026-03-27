@@ -13,6 +13,7 @@ import Test from "./pages/admin/Test";
 import TestPart from "./pages/admin/TestPart";
 
 import QuestionGroup from "./pages/admin/QuestionGroup";
+import Question from "./pages/admin/Question";
 
 export default function AdminLayout() {
   const [page,      setPage]      = useState("dashboard");
@@ -28,6 +29,7 @@ export default function AdminLayout() {
     if (page === "examset")   return <Test />;
     if (page === "testpart")  return <TestPart />;
     if (page === "question_group") return <QuestionGroup />;
+    if (page === "question")  return <Question />;
     return <Placeholder title={META[page]} />;
   };
 

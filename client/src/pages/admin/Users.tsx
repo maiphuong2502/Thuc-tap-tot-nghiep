@@ -317,7 +317,7 @@ export default function Users() {
                   textAlign: "left",
                 }}
               >
-                <th style={{ padding: "10px 18px", fontWeight: 500 }}>#</th>
+                <th style={{ padding: "10px 18px", fontWeight: 500 }}>ID</th>
                 <th style={{ padding: "10px 18px", fontWeight: 500 }}>
                   Username
                 </th>
@@ -362,7 +362,7 @@ export default function Users() {
                     }}
                   >
                     <td style={{ padding: "9px 18px", color: "#6b7280" }}>
-                      {index + 1}
+                      {user.user_id}
                     </td>
                     <td style={{ padding: "9px 18px", color: "#111827" }}>
                       {user.username}
@@ -502,7 +502,8 @@ export default function Users() {
           style={{
             position: "fixed",
             inset: 0,
-            background: "rgba(15,23,42,.75)",
+            background: "rgba(15,23,42,.5)",
+            backdropFilter: "blur(2px)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -513,11 +514,11 @@ export default function Users() {
             style={{
               width: "100%",
               maxWidth: 440,
-              background: "#020617",
-              borderRadius: 20,
-              border: "1px solid rgba(148,163,184,.35)",
-              padding: 22,
-              boxShadow: "0 30px 80px rgba(15,23,42,.85)",
+              background: "#ffffff",
+              borderRadius: 16,
+              border: "1px solid #e2e8f0",
+              padding: 24,
+              boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
             }}
           >
             <h3
@@ -525,7 +526,7 @@ export default function Users() {
                 margin: "0 0 4px",
                 fontSize: 18,
                 fontWeight: 700,
-                color: "#e5e7eb",
+                color: "#0f172a",
               }}
             >
               Thêm tài khoản
@@ -533,8 +534,8 @@ export default function Users() {
             <p
               style={{
                 margin: "0 0 16px",
-                fontSize: 12,
-                color: "#9ca3af",
+                fontSize: 13,
+                color: "#64748b",
               }}
             >
               Tài khoản mới sẽ có thể đăng nhập vào hệ thống theo vai trò được
@@ -545,7 +546,7 @@ export default function Users() {
               onSubmit={handleSubmitCreate}
               style={{ display: "flex", flexDirection: "column", gap: 10 }}
             >
-              <label style={{ fontSize: 12, color: "#9ca3af" }}>
+              <label style={{ fontSize: 13, fontWeight: 500, color: "#475569" }}>
                 Username
                 <input
                   type="text"
@@ -555,19 +556,20 @@ export default function Users() {
                   }
                   required
                   style={{
-                    marginTop: 4,
+                    marginTop: 6,
                     width: "100%",
-                    padding: "8px 10px",
-                    borderRadius: 9,
-                    border: "1px solid rgba(55,65,81,1)",
-                    background: "rgba(15,23,42,1)",
-                    color: "#e5e7eb",
-                    fontSize: 13,
+                    padding: "10px 14px",
+                    borderRadius: 8,
+                    border: "1px solid #cbd5e1",
+                    background: "#ffffff",
+                    color: "#0f172a",
+                    fontSize: 14,
+                    outline: "none",
                   }}
                 />
               </label>
 
-              <label style={{ fontSize: 12, color: "#9ca3af" }}>
+              <label style={{ fontSize: 13, fontWeight: 500, color: "#475569" }}>
                 Email
                 <input
                   type="email"
@@ -577,19 +579,20 @@ export default function Users() {
                   }
                   required
                   style={{
-                    marginTop: 4,
+                    marginTop: 6,
                     width: "100%",
-                    padding: "8px 10px",
-                    borderRadius: 9,
-                    border: "1px solid rgba(55,65,81,1)",
-                    background: "rgba(15,23,42,1)",
-                    color: "#e5e7eb",
-                    fontSize: 13,
+                    padding: "10px 14px",
+                    borderRadius: 8,
+                    border: "1px solid #cbd5e1",
+                    background: "#ffffff",
+                    color: "#0f172a",
+                    fontSize: 14,
+                    outline: "none",
                   }}
                 />
               </label>
 
-              <label style={{ fontSize: 12, color: "#9ca3af" }}>
+              <label style={{ fontSize: 13, fontWeight: 500, color: "#475569" }}>
                 Mật khẩu
                 <input
                   type="password"
@@ -599,14 +602,15 @@ export default function Users() {
                   }
                   required
                   style={{
-                    marginTop: 4,
+                    marginTop: 6,
                     width: "100%",
-                    padding: "8px 10px",
-                    borderRadius: 9,
-                    border: "1px solid rgba(55,65,81,1)",
-                    background: "rgba(15,23,42,1)",
-                    color: "#e5e7eb",
-                    fontSize: 13,
+                    padding: "10px 14px",
+                    borderRadius: 8,
+                    border: "1px solid #cbd5e1",
+                    background: "#ffffff",
+                    color: "#0f172a",
+                    fontSize: 14,
+                    outline: "none",
                   }}
                 />
               </label>
@@ -620,8 +624,9 @@ export default function Users() {
                 <label
                   style={{
                     flex: 1,
-                    fontSize: 12,
-                    color: "#9ca3af",
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: "#475569",
                   }}
                 >
                   Vai trò
@@ -631,14 +636,15 @@ export default function Users() {
                       handleChangeCreate("role", Number(e.target.value))
                     }
                     style={{
-                      marginTop: 4,
+                      marginTop: 6,
                       width: "100%",
-                      padding: "8px 10px",
-                      borderRadius: 9,
-                      border: "1px solid rgba(55,65,81,1)",
-                      background: "rgba(15,23,42,1)",
-                      color: "#e5e7eb",
-                      fontSize: 13,
+                      padding: "10px 14px",
+                      borderRadius: 8,
+                      border: "1px solid #cbd5e1",
+                      background: "#ffffff",
+                      color: "#0f172a",
+                      fontSize: 14,
+                      outline: "none",
                     }}
                   >
                     <option value={0}>Admin</option>
@@ -649,8 +655,9 @@ export default function Users() {
                 <label
                   style={{
                     flex: 1,
-                    fontSize: 12,
-                    color: "#9ca3af",
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: "#475569",
                   }}
                 >
                   Trạng thái
@@ -660,14 +667,15 @@ export default function Users() {
                       handleChangeCreate("status", Number(e.target.value))
                     }
                     style={{
-                      marginTop: 4,
+                      marginTop: 6,
                       width: "100%",
-                      padding: "8px 10px",
-                      borderRadius: 9,
-                      border: "1px solid rgba(55,65,81,1)",
-                      background: "rgba(15,23,42,1)",
-                      color: "#e5e7eb",
-                      fontSize: 13,
+                      padding: "10px 14px",
+                      borderRadius: 8,
+                      border: "1px solid #cbd5e1",
+                      background: "#ffffff",
+                      color: "#0f172a",
+                      fontSize: 14,
+                      outline: "none",
                     }}
                   >
                     <option value={1}>Active</option>
@@ -688,12 +696,13 @@ export default function Users() {
                   type="button"
                   onClick={() => setCreating(false)}
                   style={{
-                    padding: "8px 13px",
-                    borderRadius: 999,
-                    border: "1px solid rgba(55,65,81,1)",
-                    background: "transparent",
-                    color: "#9ca3af",
-                    fontSize: 12,
+                    padding: "10px 16px",
+                    borderRadius: 8,
+                    border: "none",
+                    background: "#f1f5f9",
+                    color: "#475569",
+                    fontSize: 13,
+                    fontWeight: 500,
                     cursor: "pointer",
                   }}
                 >
@@ -702,14 +711,13 @@ export default function Users() {
                 <button
                   type="submit"
                   style={{
-                    padding: "8px 16px",
-                    borderRadius: 999,
+                    padding: "10px 16px",
+                    borderRadius: 8,
                     border: "none",
-                    background:
-                      "linear-gradient(135deg, rgba(56,189,248,1), rgba(129,140,248,1))",
-                    color: "#020617",
-                    fontSize: 12,
-                    fontWeight: 600,
+                    background: "#3b82f6",
+                    color: "#ffffff",
+                    fontSize: 13,
+                    fontWeight: 500,
                     cursor: "pointer",
                   }}
                 >
@@ -727,7 +735,8 @@ export default function Users() {
           style={{
             position: "fixed",
             inset: 0,
-            background: "rgba(15,23,42,.75)",
+            background: "rgba(15,23,42,.5)",
+            backdropFilter: "blur(2px)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -738,11 +747,11 @@ export default function Users() {
             style={{
               width: "100%",
               maxWidth: 440,
-              background: "#020617",
-              borderRadius: 20,
-              border: "1px solid rgba(148,163,184,.35)",
-              padding: 22,
-              boxShadow: "0 30px 80px rgba(15,23,42,.85)",
+              background: "#ffffff",
+              borderRadius: 16,
+              border: "1px solid #e2e8f0",
+              padding: 24,
+              boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
             }}
           >
             <h3
@@ -750,7 +759,7 @@ export default function Users() {
                 margin: "0 0 4px",
                 fontSize: 18,
                 fontWeight: 700,
-                color: "#e5e7eb",
+                color: "#0f172a",
               }}
             >
               Sửa thông tin tài khoản
@@ -758,8 +767,8 @@ export default function Users() {
             <p
               style={{
                 margin: "0 0 16px",
-                fontSize: 12,
-                color: "#9ca3af",
+                fontSize: 13,
+                color: "#64748b",
               }}
             >
               Bạn chỉ có thể thay đổi thông tin tài khoản của chính mình.
@@ -769,7 +778,7 @@ export default function Users() {
               onSubmit={handleSubmitEdit}
               style={{ display: "flex", flexDirection: "column", gap: 10 }}
             >
-              <label style={{ fontSize: 12, color: "#9ca3af" }}>
+              <label style={{ fontSize: 13, fontWeight: 500, color: "#475569" }}>
                 Username
                 <input
                   type="text"
@@ -779,19 +788,20 @@ export default function Users() {
                   }
                   required
                   style={{
-                    marginTop: 4,
+                    marginTop: 6,
                     width: "100%",
-                    padding: "8px 10px",
-                    borderRadius: 9,
-                    border: "1px solid rgba(55,65,81,1)",
-                    background: "rgba(15,23,42,1)",
-                    color: "#e5e7eb",
-                    fontSize: 13,
+                    padding: "10px 14px",
+                    borderRadius: 8,
+                    border: "1px solid #cbd5e1",
+                    background: "#ffffff",
+                    color: "#0f172a",
+                    fontSize: 14,
+                    outline: "none",
                   }}
                 />
               </label>
 
-              <label style={{ fontSize: 12, color: "#9ca3af" }}>
+              <label style={{ fontSize: 13, fontWeight: 500, color: "#475569" }}>
                 Email
                 <input
                   type="email"
@@ -799,19 +809,20 @@ export default function Users() {
                   onChange={(e) => handleChangeEdit("email", e.target.value)}
                   required
                   style={{
-                    marginTop: 4,
+                    marginTop: 6,
                     width: "100%",
-                    padding: "8px 10px",
-                    borderRadius: 9,
-                    border: "1px solid rgba(55,65,81,1)",
-                    background: "rgba(15,23,42,1)",
-                    color: "#e5e7eb",
-                    fontSize: 13,
+                    padding: "10px 14px",
+                    borderRadius: 8,
+                    border: "1px solid #cbd5e1",
+                    background: "#ffffff",
+                    color: "#0f172a",
+                    fontSize: 14,
+                    outline: "none",
                   }}
                 />
               </label>
 
-              <label style={{ fontSize: 12, color: "#9ca3af" }}>
+              <label style={{ fontSize: 13, fontWeight: 500, color: "#475569" }}>
                 Mật khẩu mới (tùy chọn)
                 <input
                   type="password"
@@ -821,14 +832,15 @@ export default function Users() {
                   }
                   placeholder="Để trống nếu không đổi mật khẩu"
                   style={{
-                    marginTop: 4,
+                    marginTop: 6,
                     width: "100%",
-                    padding: "8px 10px",
-                    borderRadius: 9,
-                    border: "1px solid rgba(55,65,81,1)",
-                    background: "rgba(15,23,42,1)",
-                    color: "#e5e7eb",
-                    fontSize: 13,
+                    padding: "10px 14px",
+                    borderRadius: 8,
+                    border: "1px solid #cbd5e1",
+                    background: "#ffffff",
+                    color: "#0f172a",
+                    fontSize: 14,
+                    outline: "none",
                   }}
                 />
               </label>
@@ -842,8 +854,9 @@ export default function Users() {
                 <label
                   style={{
                     flex: 1,
-                    fontSize: 12,
-                    color: "#9ca3af",
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: "#475569",
                   }}
                 >
                   Vai trò
@@ -853,14 +866,15 @@ export default function Users() {
                       handleChangeEdit("role", Number(e.target.value))
                     }
                     style={{
-                      marginTop: 4,
+                      marginTop: 6,
                       width: "100%",
-                      padding: "8px 10px",
-                      borderRadius: 9,
-                      border: "1px solid rgba(55,65,81,1)",
-                      background: "rgba(15,23,42,1)",
-                      color: "#e5e7eb",
-                      fontSize: 13,
+                      padding: "10px 14px",
+                      borderRadius: 8,
+                      border: "1px solid #cbd5e1",
+                      background: "#ffffff",
+                      color: "#0f172a",
+                      fontSize: 14,
+                      outline: "none",
                     }}
                   >
                     <option value={0}>Admin</option>
@@ -871,8 +885,9 @@ export default function Users() {
                 <label
                   style={{
                     flex: 1,
-                    fontSize: 12,
-                    color: "#9ca3af",
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: "#475569",
                   }}
                 >
                   Trạng thái
@@ -910,12 +925,13 @@ export default function Users() {
                   type="button"
                   onClick={() => setEditing(false)}
                   style={{
-                    padding: "8px 13px",
-                    borderRadius: 999,
-                    border: "1px solid rgba(55,65,81,1)",
-                    background: "transparent",
-                    color: "#9ca3af",
-                    fontSize: 12,
+                    padding: "10px 16px",
+                    borderRadius: 8,
+                    border: "none",
+                    background: "#f1f5f9",
+                    color: "#475569",
+                    fontSize: 13,
+                    fontWeight: 500,
                     cursor: "pointer",
                   }}
                 >
@@ -924,14 +940,13 @@ export default function Users() {
                 <button
                   type="submit"
                   style={{
-                    padding: "8px 16px",
-                    borderRadius: 999,
+                    padding: "10px 16px",
+                    borderRadius: 8,
                     border: "none",
-                    background:
-                      "linear-gradient(135deg, rgba(56,189,248,1), rgba(129,140,248,1))",
-                    color: "#020617",
-                    fontSize: 12,
-                    fontWeight: 600,
+                    background: "#3b82f6",
+                    color: "#ffffff",
+                    fontSize: 13,
+                    fontWeight: 500,
                     cursor: "pointer",
                   }}
                 >

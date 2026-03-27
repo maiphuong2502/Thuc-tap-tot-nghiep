@@ -187,7 +187,7 @@ export default function Topic() {
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
               <thead>
                 <tr style={{ background: "#f8fafc" }}>
-                  {["#", "Tên chủ đề", "Mô tả", "Thao tác"].map((h, i) => (
+                  {["ID", "Tên chủ đề", "Mô tả", "Thao tác"].map((h, i) => (
                     <th key={i} style={{
                       padding: "10px 20px", textAlign: i === 3 ? "right" : "left",
                       color: "#64748b", fontWeight: 600, fontSize: 12,
@@ -231,7 +231,7 @@ export default function Topic() {
                       }}
                     >
                       <td style={{ padding: "13px 20px", color: "#cbd5e1", fontWeight: 600, fontSize: 12 }}>
-                        {String(index + 1).padStart(2, "0")}
+                        {topic.topic_id}
                       </td>
                       <td style={{ padding: "13px 20px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>

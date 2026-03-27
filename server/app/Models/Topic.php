@@ -12,6 +12,24 @@ class Topic extends Model
     protected $table = 'topics';
     protected $primaryKey = 'topic_id';
     public $timestamps = false;
+    public $incrementing = false;
+    protected $keyType = 'string';
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            if (empty($model->{$model->getKeyName()})) {
+                $maxId = static::max($model->getKeyName());
+                if (!$maxId) {
+                    $model->{$model->getKeyName()} = 'TP01';
+                } else {
+                    $num = (int) substr($maxId, 2);
+                    $model->{$model->getKeyName()} = 'TP' . str_pad($num + 1, 2, '0', STR_PAD_LEFT);
+                }
+            }
+        });
+    }
 
     protected $fillable = [
         'topic_name',
