@@ -14,6 +14,16 @@ import TestPart from "./pages/admin/TestPart";
 
 import QuestionGroup from "./pages/admin/QuestionGroup";
 import Question from "./pages/admin/Question";
+import McqQuestion from "./pages/admin/McqQuestion";
+import McqOption from "./pages/admin/McqOption";
+import FillQuestion from "./pages/admin/FillQuestion";
+import DropdownQuestion from "./pages/admin/DropdownQuestion";
+import DropdownOption from "./pages/admin/DropdownOption";
+import MatchingQuestion from "./pages/admin/MatchingQuestion";
+import MatchingAnswer from "./pages/admin/MatchingAnswer";
+import FillAnswer from "./pages/admin/FillAnswer";
+import TfngQuestion from "./pages/admin/TfngQuestion";
+import TfngAnswer from "./pages/admin/TfngAnswer";
 
 export default function AdminLayout() {
   const [page,      setPage]      = useState("dashboard");
@@ -30,6 +40,16 @@ export default function AdminLayout() {
     if (page === "testpart")  return <TestPart />;
     if (page === "question_group") return <QuestionGroup />;
     if (page === "question")  return <Question />;
+    if (page === "mcq_question") return <McqQuestion />;
+    if (page === "mcq_option") return <McqOption />;
+    if (page === "fill_question") return <FillQuestion />;
+    if (page === "dropdown_question") return <DropdownQuestion />;
+    if (page === "dropdown_option") return <DropdownOption />;
+    if (page === "matching_question") return <MatchingQuestion />;
+    if (page === "matching_answer") return <MatchingAnswer />;
+    if (page === "fill_answer") return <FillAnswer />;
+    if (page === "tfng_question") return <TfngQuestion />;
+    if (page === "tfng_answer") return <TfngAnswer />;
     return <Placeholder title={META[page]} />;
   };
 

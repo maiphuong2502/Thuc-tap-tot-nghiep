@@ -26,6 +26,11 @@ class DatabaseSeeder extends Seeder
             TestPartSeeder::class,
             QuestionGroupSeeder::class,
             QuestionSeeder::class,
+            DropdownQuestionSeeder::class,
+            FillAnswerSeeder::class,
+            MatchingQuestionSeeder::class,
+            TfngQuestionSeeder::class,
+            TfngAnswerSeeder::class,
         ]);
     }
 }

@@ -100,6 +100,105 @@ class AppServiceProvider extends ServiceProvider
             \App\Services\QuestionServiceInterface::class,
             \App\Services\QuestionService::class
         );
+
+        $this->app->bind(
+            \App\Repositories\McqQuestionRepositoryInterface::class,
+            \App\Repositories\McqQuestionRepository::class
+        );
+
+        $this->app->bind(
+            \App\Services\McqQuestionServiceInterface::class,
+            \App\Services\McqQuestionService::class
+        );
+        $this->app->bind(
+            \App\Repositories\McqOptionRepositoryInterface::class,
+            \App\Repositories\McqOptionRepository::class
+        );
+
+        $this->app->bind(
+            \App\Services\McqOptionServiceInterface::class,
+            \App\Services\McqOptionService::class
+        );
+
+        $this->app->bind(
+            \App\Repositories\FillQuestionRepositoryInterface::class,
+            \App\Repositories\FillQuestionRepository::class
+        );
+
+        $this->app->bind(
+            \App\Services\FillQuestionServiceInterface::class,
+            \App\Services\FillQuestionService::class
+        );
+
+        $this->app->bind(
+            \App\Repositories\FillAnswerRepositoryInterface::class,
+            \App\Repositories\FillAnswerRepository::class
+        );
+
+        $this->app->bind(
+            \App\Services\FillAnswerServiceInterface::class,
+            \App\Services\FillAnswerService::class
+        );
+
+        $this->app->bind(
+            \App\Repositories\DropdownQuestionRepositoryInterface::class,
+            \App\Repositories\DropdownQuestionRepository::class
+        );
+
+        $this->app->bind(
+            \App\Services\DropdownQuestionServiceInterface::class,
+            \App\Services\DropdownQuestionService::class
+        );
+
+        $this->app->bind(
+            \App\Repositories\DropdownOptionRepositoryInterface::class,
+            \App\Repositories\DropdownOptionRepository::class
+        );
+
+        $this->app->bind(
+            \App\Services\DropdownOptionServiceInterface::class,
+            \App\Services\DropdownOptionService::class
+        );
+
+        $this->app->bind(
+            \App\Repositories\MatchingQuestionRepositoryInterface::class,
+            \App\Repositories\MatchingQuestionRepository::class
+        );
+
+        $this->app->bind(
+            \App\Services\MatchingQuestionServiceInterface::class,
+            \App\Services\MatchingQuestionService::class
+        );
+
+        $this->app->bind(
+            \App\Repositories\MatchingAnswerRepositoryInterface::class,
+            \App\Repositories\MatchingAnswerRepository::class
+        );
+
+        $this->app->bind(
+            \App\Services\MatchingAnswerServiceInterface::class,
+            \App\Services\MatchingAnswerService::class
+        );
+
+        $this->app->bind(
+            \App\Repositories\TfngQuestionRepositoryInterface::class,
+            \App\Repositories\TfngQuestionRepository::class
+        );
+
+        $this->app->bind(
+            \App\Services\TfngQuestionServiceInterface::class,
+            \App\Services\TfngQuestionService::class
+        );
+
+        $this->app->bind(
+            \App\Repositories\TfngAnswerRepositoryInterface::class,
+            \App\Repositories\TfngAnswerRepository::class
+        );
+
+        $this->app->bind(
+            \App\Services\TfngAnswerServiceInterface::class,
+            \App\Services\TfngAnswerService::class
+        );
     }
 
     /**
