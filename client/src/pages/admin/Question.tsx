@@ -166,7 +166,7 @@ export default function QuestionPage() {
               Hệ thống thi
             </p>
             <h2 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: "#0f172a", lineHeight: 1.2 }}>
-              Quản lý Câu Học
+              Quản lý Câu Hỏi
             </h2>
             <p style={{ margin: "6px 0 0", fontSize: 13, color: "#94a3b8" }}>
               Danh sách câu hỏi trong các đề thi
@@ -194,6 +194,7 @@ export default function QuestionPage() {
               <option value="FILL">Điền từ (FILL)</option>
               <option value="DROPDOWN">Dropdown</option>
               <option value="matching">Nối từ (Matching)</option>
+              <option value="tfng">True/False/Not Given</option>
             </select>
         </div>
 
@@ -314,6 +315,7 @@ export default function QuestionPage() {
                     <option value="FILL">FILL (Điền từ)</option>
                     <option value="DROPDOWN">DROPDOWN</option>
                     <option value="matching">Matching (Nối)</option>
+                    <option value="tfng">True/False/Not Given</option>
                   </select>
                 </div>
                 <div style={{ width: 80 }}>
