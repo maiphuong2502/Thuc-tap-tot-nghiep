@@ -36,6 +36,11 @@ class QuestionService implements QuestionServiceInterface
         // Auto set skill_id
         $data['skill_id'] = $group->skill_id;
 
+        // Normalize question_type to uppercase for consistency
+        if (isset($data['question_type'])) {
+            $data['question_type'] = strtoupper($data['question_type']);
+        }
+
         // Check if order_index is unique within the group
         if ($this->questionRepository->checkOrderIndexExists($data['group_id'], $data['order_index'])) {
             throw ValidationException::withMessages(['order_index' => 'Order index already exists in this group.']);

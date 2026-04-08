@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import tfngAnswerService from "../../services/tfngAnswerService";
-import tfngQuestionService from "../../services/tfngQuestionService";
 import { TfngAnswer, TfngAnswerFormData } from "../../types/tfng-answer";
+import { useAppSelector, useAppDispatch } from "../../app/hooks";
+import { upsertTfngAnswer, removeTfngAnswer } from "../../app/cacheSlice";
 
 const CORRECT_ANSWER_OPTIONS = ["TRUE", "FALSE", "NOT GIVEN"];
 
@@ -31,9 +32,8 @@ const correctAnswerBadge = (val: string) => {
 };
 
 export default function TfngAnswerPage() {
-  const [rows, setRows] = useState<TfngAnswer[]>([]);
-  const [tfngQuestions, setTfngQuestions] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { tfngAnswers: rows, tfngQuestions, loading } = useAppSelector(state => state.cache);
+  const dispatch = useAppDispatch();
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
 
@@ -46,39 +46,6 @@ export default function TfngAnswerPage() {
   });
   const [formError, setFormError] = useState("");
   const [saving, setSaving] = useState(false);
-
-  const loadList = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const res: any = await tfngAnswerService.list();
-      if (res?.status === "success" && Array.isArray(res.data)) {
-        setRows(res.data);
-      } else {
-        setError("Không tải được danh sách đáp án TFNG.");
-      }
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Có lỗi xảy ra khi tải danh sách.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadTfngQuestions = async () => {
-    try {
-      const res: any = await tfngQuestionService.list();
-      if (res?.status === "success" && Array.isArray(res.data)) {
-        setTfngQuestions(res.data);
-      }
-    } catch (err) {
-      console.error("Failed to load TFNG questions", err);
-    }
-  };
-
-  useEffect(() => {
-    loadList();
-    loadTfngQuestions();
-  }, []);
 
   const openAddModal = () => {
     setEditing(null);
@@ -115,20 +82,23 @@ export default function TfngAnswerPage() {
     setSaving(true);
     setFormError("");
     try {
+      let savedItem;
       if (editing) {
-        await tfngAnswerService.update(editing.answer_id, {
+        const res = await tfngAnswerService.update(editing.answer_id, {
           question_id:    formData.question_id,
           correct_answer: formData.correct_answer,
         });
+        savedItem = res.data;
       } else {
-        await tfngAnswerService.create({
+        const res = await tfngAnswerService.create({
           answer_id:      formData.answer_id,
           question_id:    formData.question_id,
           correct_answer: formData.correct_answer,
         });
+        savedItem = res.data;
       }
+      dispatch(upsertTfngAnswer(savedItem));
       setIsModalOpen(false);
-      loadList();
     } catch (err: any) {
       const msg =
         err.response?.data?.message ||
@@ -147,7 +117,7 @@ export default function TfngAnswerPage() {
     if (window.confirm(`Bạn có chắc chắn muốn xóa đáp án TFNG "${row.answer_id}"?`)) {
       try {
         await tfngAnswerService.delete(row.answer_id);
-        loadList();
+        dispatch(removeTfngAnswer(row.answer_id));
       } catch (err: any) {
         alert(err.response?.data?.message || err.message || "Lỗi khi xóa đáp án TFNG.");
       }

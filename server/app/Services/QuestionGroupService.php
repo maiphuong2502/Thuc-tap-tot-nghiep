@@ -20,7 +20,7 @@ class QuestionGroupService extends BaseService implements QuestionGroupServiceIn
     {
         try {
             $query = \App\Models\QuestionGroup::query();
-            $query->with(['skill', 'passage', 'audio']);
+            $query->with(['skill', 'passage', 'audio', 'part.test']);
 
             if (!empty($filters['search'])) {
                 $query->where('title', 'like', '%' . $filters['search'] . '%');
@@ -29,12 +29,11 @@ class QuestionGroupService extends BaseService implements QuestionGroupServiceIn
             if (!empty($filters['skill_id'])) {
                 $query->where('skill_id', $filters['skill_id']);
             }
-            
-            if (!empty($filters['type'])) {
-                $query->where('type', $filters['type']);
+            if (!empty($filters['part_id'])) {
+                $query->where('part_id', $filters['part_id']);
             }
 
-            $query->orderBy('group_id', 'desc');
+            $query->orderBy('group_id', 'asc');
 
             if ($perPage > 0) {
                 return $query->paginate($perPage);

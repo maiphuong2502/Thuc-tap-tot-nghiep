@@ -1,5 +1,6 @@
 const NAV = [
   { id: "dashboard", icon: "⊞",  label: "Tổng quan" },
+  { id: "data_entry",icon: "✨", label: "Nhập liệu tổng hợp" },
   { id: "users",     icon: "👥", label: "Quản lý tài khoản" },
   { id: "skill",     icon: "🎯", label: "Quản lý kỹ năng" },
   { id: "topic",     icon: "🏷️", label: "Quản lý chủ đề" },
@@ -9,17 +10,11 @@ const NAV = [
   { id: "testpart",  icon: "🧩", label: "Quản lý phần thi bộ đề" },
   { id: "question_group", icon: "📑", label: "Quản lý nhóm câu hỏi" },
   { id: "question",  icon: "❓", label: "Quản lý câu hỏi" },
-  { id: "answer",    icon: "✅", label: "Quản lý đáp án" },
   { id: "mcq_question", icon: "📝", label: "Quản lý câu hỏi MCQ" },
-  { id: "mcq_option", icon: "🔘", label: "Quản lý đáp án MCQ" },
   { id: "dropdown_question", icon: "📋", label: "Quản lý câu hỏi chọn từ" },
-  { id: "dropdown_option", icon: "☑️", label: "Quản lý đáp án chọn từ" },
   { id: "matching_question", icon: "🔗", label: "Quản lý câu hỏi nối" },
-  { id: "matching_answer", icon: "🔗", label: "Quản lý đáp án nối" },
   { id: "fill_question", icon: "✏️", label: "Quản lý câu hỏi điền từ" },
-  { id: "fill_answer", icon: "✔️", label: "Quản lý đáp án điền từ" },
   { id: "tfng_question", icon: "☑️", label: "Quản lý câu hỏi TFNG" },
-  { id: "tfng_answer", icon: "🗳️", label: "Quản lý đáp án TFNG" },
   { id: "result",    icon: "📊", label: "Quản lý kết quả" },
 ];
 

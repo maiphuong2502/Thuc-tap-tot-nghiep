@@ -37,7 +37,7 @@ class QuestionController extends Controller
     {
         $data = $request->validate([
             'group_id' => 'required|string',
-            'question_type' => 'required|string|in:DROPDOWN,matching,FILL,MCQ',
+            'question_type' => 'required|string|in:DROPDOWN,dropdown,matching,FILL,fill,MCQ,mcq,tfng,MAP,map',
             'order_index' => 'required|integer|min:1',
             'question_id' => 'nullable|string|unique:questions,question_id'
         ]);
@@ -65,7 +65,7 @@ class QuestionController extends Controller
     {
         $data = $request->validate([
             'group_id' => 'sometimes|required|string',
-            'question_type' => 'sometimes|required|string|in:DROPDOWN,matching,FILL,MCQ',
+            'question_type' => 'sometimes|required|string|in:DROPDOWN,dropdown,matching,FILL,fill,MCQ,mcq,tfng,MAP,map',
             'order_index' => 'sometimes|required|integer|min:1',
         ]);
 

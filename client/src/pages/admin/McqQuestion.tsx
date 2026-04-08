@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import mcqQuestionService from "../../services/mcqQuestionService";
-import questionService from "../../services/questionService";
+import mcqOptionService from "../../services/mcqOptionService";
 import { McqQuestion } from "../../types/mcq-question";
+import { useAppSelector, useAppDispatch } from "../../app/hooks";
+import { upsertMcqQuestion, removeMcqQuestion, upsertMcqOption, removeMcqOption } from "../../app/cacheSlice";
 
 export default function McqQuestionPage() {
-  const [mcqQuestions, setMcqQuestions] = useState<McqQuestion[]>([]);
-  const [questions, setQuestions] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { mcqQuestions, mcqOptions, questions, loading } = useAppSelector(state => state.cache);
+  const dispatch = useAppDispatch();
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
 
@@ -16,40 +17,66 @@ export default function McqQuestionPage() {
   const [formError, setFormError] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const loadMcqQuestions = async () => {
-    setLoading(true);
-    setError("");
+  // View options modal state
+  const [viewingQuestion, setViewingQuestion] = useState<McqQuestion | null>(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [editingOptionId, setEditingOptionId] = useState<string | null>(null);
+  const [editingOptionContent, setEditingOptionContent] = useState("");
+  const [editingOptionCorrect, setEditingOptionCorrect] = useState(false);
+  const [savingOption, setSavingOption] = useState(false);
+
+  const openViewModal = (mq: McqQuestion) => {
+    setViewingQuestion(mq);
+    setIsViewModalOpen(true);
+    setEditingOptionId(null);
+  };
+
+  const closeViewModal = () => {
+    setViewingQuestion(null);
+    setIsViewModalOpen(false);
+    setEditingOptionId(null);
+  };
+
+  const viewOptions = viewingQuestion
+    ? mcqOptions.filter((o: any) => o.question_id === viewingQuestion.question_id)
+    : [];
+
+  const startEditOption = (opt: any) => {
+    setEditingOptionId(opt.option_id);
+    setEditingOptionContent(opt.content);
+    setEditingOptionCorrect(opt.is_correct);
+  };
+
+  const cancelEditOption = () => {
+    setEditingOptionId(null);
+  };
+
+  const saveEditOption = async (opt: any) => {
+    setSavingOption(true);
     try {
-      const res: any = await mcqQuestionService.list();
-      if (res?.success && Array.isArray(res.data)) {
-        setMcqQuestions(res.data);
-      } else {
-        setError("Không tải được danh sách câu hỏi MCQ.");
-      }
+      const res = await mcqOptionService.update(opt.option_id, {
+        question_id: opt.question_id,
+        content: editingOptionContent,
+        is_correct: editingOptionCorrect,
+      });
+      dispatch(upsertMcqOption(res.data));
+      setEditingOptionId(null);
     } catch (err: any) {
-      setError(err.response?.data?.message || "Có lỗi xảy ra khi tải danh sách.");
+      alert(err.response?.data?.message || "Lỗi khi cập nhật đáp án.");
     } finally {
-      setLoading(false);
+      setSavingOption(false);
     }
   };
 
-  const loadQuestionsForDropdown = async () => {
+  const handleDeleteOption = async (opt: any) => {
+    if (!window.confirm(`Xóa đáp án "${opt.content}"?`)) return;
     try {
-      const res: any = await questionService.list({ type: 'MCQ', per_page: 1000 });
-      if (res?.success && Array.isArray(res.data?.data)) {
-        setQuestions(res.data.data);
-      } else if (res?.success && Array.isArray(res.data)) {
-        setQuestions(res.data);
-      }
-    } catch (err) {
-      console.error("Failed to load questions dropdown", err);
+      await mcqOptionService.delete(opt.option_id);
+      dispatch(removeMcqOption(opt.option_id));
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Lỗi khi xóa đáp án.");
     }
   };
-
-  useEffect(() => {
-    loadMcqQuestions();
-    loadQuestionsForDropdown();
-  }, []);
 
   const openAddModal = () => {
     setEditingQuestion(null);
@@ -77,13 +104,16 @@ export default function McqQuestionPage() {
     setSaving(true);
     setFormError("");
     try {
+      let savedQuestion;
       if (editingQuestion) {
-        await mcqQuestionService.update(editingQuestion.question_id, formData);
+        const res = await mcqQuestionService.update(editingQuestion.question_id, formData);
+        savedQuestion = res.data;
       } else {
-        await mcqQuestionService.create(formData);
+        const res = await mcqQuestionService.create(formData);
+        savedQuestion = res.data;
       }
+      dispatch(upsertMcqQuestion(savedQuestion));
       setIsModalOpen(false);
-      loadMcqQuestions();
     } catch (err: any) {
       setFormError(err.response?.data?.message || "Có lỗi xảy ra.");
     } finally {
@@ -95,7 +125,7 @@ export default function McqQuestionPage() {
     if (window.confirm(`Bạn có chắc chắn muốn xóa câu hỏi MCQ "${mq.question_id}"?`)) {
       try {
         await mcqQuestionService.delete(mq.question_id);
-        loadMcqQuestions();
+        dispatch(removeMcqQuestion(mq.question_id));
       } catch (err: any) {
         alert(err.response?.data?.message || "Lỗi khi xóa câu hỏi MCQ.");
       }
@@ -280,6 +310,7 @@ export default function McqQuestionPage() {
                         </span>
                       </td>
                       <td style={{ padding: "13px 20px", textAlign: "right", whiteSpace: "nowrap" }}>
+                        <button onClick={() => openViewModal(q)} style={{ background: "none", border: "none", cursor: "pointer", color: "#16a34a", marginRight: 10 }}>👁️ Xem</button>
                         <button onClick={() => openEditModal(q)} style={{ background: "none", border: "none", cursor: "pointer", color: "#3b82f6", marginRight: 10 }}>✏️ Chỉnh sửa</button>
                         <button onClick={() => handleDelete(q)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444" }}>❌ Xóa</button>
                       </td>
@@ -330,7 +361,7 @@ export default function McqQuestionPage() {
                     }}
                   >
                     <option value="">-- Chọn Question ID (Loại MCQ) --</option>
-                    {questions.map(q => (
+                    {questions.filter(q => q.question_type.toLowerCase() === 'mcq').map(q => (
                       <option key={q.question_id} value={q.question_id}>
                         {q.question_id}
                       </option>
@@ -366,6 +397,94 @@ export default function McqQuestionPage() {
                   {saving ? "Đang lưu..." : "Lưu Thay Đổi"}
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* View Options Modal */}
+        {isViewModalOpen && viewingQuestion && (
+          <div className="modal-overlay" onClick={closeViewModal}>
+            <div
+              className="fade-up"
+              style={{ background: "white", borderRadius: 20, width: "100%", maxWidth: 680, padding: 28, boxShadow: "0 25px 50px rgba(0,0,0,0.15)", maxHeight: "90vh", overflowY: "auto" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+                <div>
+                  <p style={{ margin: 0, fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", color: "#3b82f6", textTransform: "uppercase" }}>MCQ — {viewingQuestion.question_id}</p>
+                  <h3 style={{ margin: "6px 0 0", fontSize: 18, fontWeight: 700, color: "#0f172a" }}>Danh Sách Đáp Án</h3>
+                </div>
+                <button onClick={closeViewModal} style={{ background: "#f1f5f9", border: "none", borderRadius: 8, padding: "6px 12px", cursor: "pointer", color: "#64748b", fontSize: 13 }}>✕ Đóng</button>
+              </div>
+
+              {/* Question content */}
+              <div style={{ background: "#f8fafc", borderRadius: 12, padding: "14px 18px", marginBottom: 20, border: "1px solid #e2e8f0" }}>
+                <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 4 }}>NỘI DUNG CÂU HỎI</p>
+                <p style={{ margin: 0, fontSize: 14, color: "#0f172a", lineHeight: 1.6 }}>{viewingQuestion.content}</p>
+              </div>
+
+              {/* Options list */}
+              {viewOptions.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "32px 20px", color: "#94a3b8" }}>
+                  <span style={{ fontSize: 32, display: "block", marginBottom: 8 }}>📭</span>
+                  <span style={{ fontWeight: 500 }}>Chưa có đáp án nào cho câu hỏi này</span>
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  <p style={{ margin: "0 0 6px", fontSize: 13, fontWeight: 600, color: "#334155" }}>Danh sách {viewOptions.length} đáp án:</p>
+                  {viewOptions.map((opt: any, idx: number) => (
+                    <div key={opt.option_id} style={{
+                      border: opt.is_correct ? "2px solid #22c55e" : "1px solid #e2e8f0",
+                      borderRadius: 12, padding: "12px 16px",
+                      background: opt.is_correct ? "#f0fdf4" : "#fff",
+                    }}>
+                      {editingOptionId === opt.option_id ? (
+                        /* Edit mode */
+                        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                          <input
+                            type="text"
+                            value={editingOptionContent}
+                            onChange={(e) => setEditingOptionContent(e.target.value)}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", boxSizing: "border-box" }}
+                          />
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                            <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 13, color: "#16a34a", fontWeight: 600 }}>
+                              <input type="checkbox" checked={editingOptionCorrect} onChange={(e) => setEditingOptionCorrect(e.target.checked)} style={{ width: 16, height: 16 }} />
+                              Đây là đáp án đúng
+                            </label>
+                            <div style={{ display: "flex", gap: 8 }}>
+                              <button onClick={cancelEditOption} style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid #cbd5e1", background: "#f1f5f9", cursor: "pointer", fontSize: 13 }}>Hủy</button>
+                              <button onClick={() => saveEditOption(opt)} disabled={savingOption} style={{ padding: "6px 14px", borderRadius: 8, border: "none", background: "#3b82f6", color: "white", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
+                                {savingOption ? "Đang lưu..." : "💾 Lưu"}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        /* View mode */
+                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                          <span style={{
+                            minWidth: 28, height: 28, borderRadius: "50%",
+                            background: opt.is_correct ? "#22c55e" : "#e2e8f0",
+                            color: opt.is_correct ? "white" : "#64748b",
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            fontWeight: 700, fontSize: 13, flexShrink: 0
+                          }}>
+                            {String.fromCharCode(65 + idx)}
+                          </span>
+                          <span style={{ flex: 1, fontSize: 14, color: "#0f172a" }}>{opt.content}</span>
+                          {opt.is_correct && (
+                            <span style={{ padding: "2px 10px", background: "#dcfce7", color: "#15803d", borderRadius: 20, fontSize: 11, fontWeight: 700 }}>✓ Đúng</span>
+                          )}
+                          <button onClick={() => startEditOption(opt)} style={{ background: "none", border: "none", cursor: "pointer", color: "#3b82f6", fontSize: 13, padding: "4px 8px" }}>✏️</button>
+                          <button onClick={() => handleDeleteOption(opt)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", fontSize: 13, padding: "4px 8px" }}>🗑️</button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}

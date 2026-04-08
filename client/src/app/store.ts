@@ -1,11 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit"
+import cacheReducer from "./cacheSlice"
 
 export const store = configureStore({
   reducer: {
-    // reducers của bạn
+    cache: cacheReducer,
   }
 })
 
-// ✅ THÊM 2 DÒNG NÀY
 export type RootState = ReturnType<typeof store.getState>
-export type AppDispatch = typeof store.dispatch
+export type AppDispatch = typeof store.dispatch

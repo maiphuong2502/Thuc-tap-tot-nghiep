@@ -1,13 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import fillAnswerService from "../../services/fillAnswerService";
-import fillQuestionService from "../../services/fillQuestionService";
 import { FillAnswer } from "../../types/fill-answer";
-import { FillQuestion } from "../../types/fill-question";
+import { useAppSelector, useAppDispatch } from "../../app/hooks";
+import { upsertFillAnswer, removeFillAnswer } from "../../app/cacheSlice";
 
 export default function FillAnswerPage() {
-  const [fillAnswers, setFillAnswers] = useState<FillAnswer[]>([]);
-  const [fillQuestions, setFillQuestions] = useState<FillQuestion[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { fillAnswers, fillQuestions, loading } = useAppSelector(state => state.cache);
+  const dispatch = useAppDispatch();
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
 
@@ -16,39 +15,6 @@ export default function FillAnswerPage() {
   const [formData, setFormData] = useState({ answer_id: "", question_id: "", correct_answer: "" });
   const [formError, setFormError] = useState("");
   const [saving, setSaving] = useState(false);
-
-  const loadFillAnswers = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const res: any = await fillAnswerService.list();
-      if (res?.success && Array.isArray(res.data)) {
-        setFillAnswers(res.data);
-      } else {
-        setError("Không tải được danh sách đáp án.");
-      }
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Có lỗi xảy ra khi tải danh sách.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadFillQuestionsForDropdown = async () => {
-    try {
-      const res: any = await fillQuestionService.list();
-      if (res?.success && Array.isArray(res.data)) {
-        setFillQuestions(res.data);
-      }
-    } catch (err) {
-      console.error("Failed to load fill questions dropdown", err);
-    }
-  };
-
-  useEffect(() => {
-    loadFillAnswers();
-    loadFillQuestionsForDropdown();
-  }, []);
 
   const openAddModal = () => {
     setEditingAnswer(null);
@@ -80,13 +46,16 @@ export default function FillAnswerPage() {
     setSaving(true);
     setFormError("");
     try {
+      let savedItem;
       if (editingAnswer) {
-        await fillAnswerService.update(editingAnswer.answer_id, formData);
+        const res = await fillAnswerService.update(editingAnswer.answer_id, formData);
+        savedItem = res.data;
       } else {
-        await fillAnswerService.create(formData);
+        const res = await fillAnswerService.create(formData);
+        savedItem = res.data;
       }
+      dispatch(upsertFillAnswer(savedItem));
       setIsModalOpen(false);
-      loadFillAnswers();
     } catch (err: any) {
       setFormError(err.response?.data?.message || err.message || "Có lỗi xảy ra.");
     } finally {
@@ -98,7 +67,7 @@ export default function FillAnswerPage() {
     if (window.confirm(`Bạn có chắc chắn muốn xóa đáp án "${fa.answer_id}"?`)) {
       try {
         await fillAnswerService.delete(fa.answer_id);
-        loadFillAnswers();
+        dispatch(removeFillAnswer(fa.answer_id));
       } catch (err: any) {
         alert(err.response?.data?.message || err.message || "Lỗi khi xóa đáp án.");
       }

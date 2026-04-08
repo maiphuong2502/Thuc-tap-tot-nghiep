@@ -14,7 +14,7 @@ class StoreFillAnswerRequest extends FormRequest
     public function rules()
     {
         return [
-            'answer_id' => 'required|string|max:10|unique:fill_answers,answer_id',
+            'answer_id' => 'nullable|string|max:10|unique:fill_answers,answer_id',
             'question_id' => 'required|string|exists:fill_questions,question_id',
             'correct_answer' => 'required|string|max:255',
         ];

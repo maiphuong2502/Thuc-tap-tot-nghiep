@@ -1,13 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import dropdownOptionService from "../../services/dropdownOptionService";
-import dropdownQuestionService from "../../services/dropdownQuestionService";
 import { DropdownOption, DropdownOptionFormData } from "../../types/dropdown-option";
-import { DropdownQuestion } from "../../types/dropdown-question";
+import { useAppSelector, useAppDispatch } from "../../app/hooks";
+import { upsertDropdownOption, removeDropdownOption } from "../../app/cacheSlice";
 
 export default function DropdownOptionPage() {
-  const [dropdownOptions, setDropdownOptions] = useState<DropdownOption[]>([]);
-  const [dropdownQuestions, setDropdownQuestions] = useState<DropdownQuestion[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { dropdownOptions, dropdownQuestions, loading } = useAppSelector(state => state.cache);
+  const dispatch = useAppDispatch();
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
 
@@ -21,44 +20,6 @@ export default function DropdownOptionPage() {
   });
   const [formError, setFormError] = useState("");
   const [saving, setSaving] = useState(false);
-
-  const loadDropdownOptions = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const res: any = await dropdownOptionService.list();
-      if (res?.success && Array.isArray(res.data)) {
-        setDropdownOptions(res.data);
-      } else if (res?.status === "success" && Array.isArray(res.data)) {
-        setDropdownOptions(res.data);
-      } else {
-        setError("Không tải được danh sách đáp án chọn từ.");
-      }
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Có lỗi xảy ra khi tải danh sách.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadDropdownQuestionsForDropdown = async () => {
-    try {
-      const res: any = await dropdownQuestionService.list();
-      // Adjust according to the API response structure
-      if (res?.success && Array.isArray(res.data)) {
-        setDropdownQuestions(res.data);
-      } else if (res?.status === "success" && Array.isArray(res.data)) {
-        setDropdownQuestions(res.data);
-      }
-    } catch (err) {
-      console.error("Failed to load dropdown questions", err);
-    }
-  };
-
-  useEffect(() => {
-    loadDropdownOptions();
-    loadDropdownQuestionsForDropdown();
-  }, []);
 
   const openAddModal = () => {
     setEditingOption(null);
@@ -95,13 +56,16 @@ export default function DropdownOptionPage() {
     setSaving(true);
     setFormError("");
     try {
+      let savedOption;
       if (editingOption) {
-        await dropdownOptionService.update(editingOption.option_id, formData);
+        const res = await dropdownOptionService.update(editingOption.option_id, formData);
+        savedOption = res.data;
       } else {
-        await dropdownOptionService.create(formData);
+        const res = await dropdownOptionService.create(formData);
+        savedOption = res.data;
       }
+      dispatch(upsertDropdownOption(savedOption));
       setIsModalOpen(false);
-      loadDropdownOptions();
     } catch (err: any) {
       setFormError(err.response?.data?.message || err.message || "Có lỗi xảy ra.");
     } finally {
@@ -113,7 +77,7 @@ export default function DropdownOptionPage() {
     if (window.confirm(`Bạn có chắc chắn muốn xóa đáp án "${opt.option_id}"?`)) {
       try {
         await dropdownOptionService.delete(opt.option_id);
-        loadDropdownOptions();
+        dispatch(removeDropdownOption(opt.option_id));
       } catch (err: any) {
         alert(err.response?.data?.message || err.message || "Lỗi khi xóa đáp án.");
       }

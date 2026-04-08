@@ -1,14 +1,36 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import questionService from "../../services/questionService";
-import questionGroupService from "../../services/questionGroupService";
-import skillService from "../../services/skillService";
+import mcqQuestionService from "../../services/mcqQuestionService";
+import mcqOptionService from "../../services/mcqOptionService";
+import fillQuestionService from "../../services/fillQuestionService";
+import fillAnswerService from "../../services/fillAnswerService";
+import dropdownQuestionService from "../../services/dropdownQuestionService";
+import dropdownOptionService from "../../services/dropdownOptionService";
+import matchingQuestionService from "../../services/matchingQuestionService";
+import matchingAnswerService from "../../services/matchingAnswerService";
+import tfngQuestionService from "../../services/tfngQuestionService";
+import tfngAnswerService from "../../services/tfngAnswerService";
 import { Question } from "../../types/question";
+import { useAppSelector, useAppDispatch } from "../../app/hooks";
+import { upsertQuestion, removeQuestion, removeMcqQuestion, removeMcqOption, removeFillQuestion, removeFillAnswer, removeDropdownQuestion, removeDropdownOption, removeMatchingQuestion, removeMatchingAnswer, removeTfngQuestion, removeTfngAnswer } from "../../app/cacheSlice";
+
+const TYPE_MAP: Record<string, string> = {
+  mcq: "Multiple choice question",
+  fill: "FILL",
+  dropdown: "Dropdown",
+  matching: "Matching",
+  map: "Map",
+  tfng: "True/False/Not Given",
+  // uppercase fallbacks
+  MCQ: "Multiple choice question",
+  FILL: "FILL",
+  DROPDOWN: "Dropdown",
+  MAP: "Map",
+};
 
 export default function QuestionPage() {
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [groups, setGroups] = useState<any[]>([]);
-  const [skills, setSkills] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { questions, questionGroups: groups, skills, mcqQuestions, mcqOptions, fillQuestions, fillAnswers, dropdownQuestions, dropdownOptions, matchingQuestions, matchingAnswers, tfngQuestions, tfngAnswers, loading } = useAppSelector(state => state.cache);
+  const dispatch = useAppDispatch();
   const [error, setError] = useState("");
 
   const [filters, setFilters] = useState({ skill: "", type: "", group: "" });
@@ -26,32 +48,51 @@ export default function QuestionPage() {
   
   const [formError, setFormError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [viewingQuestion, setViewingQuestion] = useState<Question | null>(null);
 
-  const loadData = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const [qRes, gRes, sRes]: any = await Promise.all([
-        questionService.list(filters),
-        questionGroupService.list(),
-        skillService.list()
-      ]);
-      
-      if (qRes?.data?.data) {
-        setQuestions(qRes.data.data.data || qRes.data.data); // Support both paginated and unpaginated responses
-      }
-      if (gRes?.data) setGroups(Array.isArray(gRes.data) ? gRes.data : gRes.data.data || []);
-      if (sRes?.data) setSkills(Array.isArray(sRes.data) ? sRes.data : sRes.data.data || []);
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Có lỗi xảy ra khi tải dữ liệu.");
-    } finally {
-      setLoading(false);
+  // Delete confirmation modal
+  const [deletingQuestion, setDeletingQuestion] = useState<Question | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const getRelatedData = (q: Question) => {
+    const t = (q.question_type || "").toLowerCase();
+    if (t === "mcq") {
+      const mq = mcqQuestions.find((x: any) => x.question_id === q.question_id);
+      const opts = mcqOptions.filter((x: any) => x.question_id === q.question_id);
+      return { type: "MCQ", question: mq, children: opts, childLabel: "Đáp án", childKey: (x: any) => x.option_id, childDisplay: (x: any) => `${x.option_id}: ${x.content}${x.is_correct ? " ✓" : ""}` };
     }
+    if (t === "fill") {
+      const fq = fillQuestions.find((x: any) => x.question_id === q.question_id);
+      const ans = fillAnswers.filter((x: any) => x.question_id === q.question_id);
+      return { type: "FILL", question: fq, children: ans, childLabel: "Đáp án", childKey: (x: any) => x.answer_id, childDisplay: (x: any) => x.correct_answer };
+    }
+    if (t === "dropdown") {
+      const dq = dropdownQuestions.find((x: any) => x.question_id === q.question_id);
+      const opts = dropdownOptions.filter((x: any) => x.question_id === q.question_id);
+      return { type: "DROPDOWN", question: dq, children: opts, childLabel: "Tùy chọn", childKey: (x: any) => x.option_id, childDisplay: (x: any) => `${x.content}${x.is_correct ? " ✓" : ""}` };
+    }
+    if (t === "matching") {
+      const mq = matchingQuestions.find((x: any) => x.question_id === q.question_id);
+      const ans = matchingAnswers.filter((x: any) => x.question_id === q.question_id);
+      return { type: "MATCHING", question: mq, children: ans, childLabel: "Cặp nối", childKey: (x: any) => x.answer_id, childDisplay: (x: any) => `${x.left_item} ↔ ${x.right_item}` };
+    }
+    if (t === "tfng") {
+      const tq = tfngQuestions.find((x: any) => x.question_id === q.question_id);
+      const ans = tfngAnswers.filter((x: any) => x.question_id === q.question_id);
+      return { type: "TFNG", question: tq, children: ans, childLabel: "Đáp án", childKey: (x: any) => x.answer_id, childDisplay: (x: any) => x.correct_answer };
+    }
+    return null;
   };
 
-  useEffect(() => {
-    loadData();
-  }, [filters]);
+  const filteredQuestions = useMemo(() => {
+    return questions.filter((q: any) => {
+      let pass = true;
+      if (filters.skill && q.skill_id !== filters.skill) pass = false;
+      if (filters.type && q.question_type !== filters.type) pass = false;
+      if (filters.group && q.group_id !== filters.group) pass = false;
+      return pass;
+    });
+  }, [questions, filters]);
 
   const openAddModal = () => {
     setEditingQuestion(null);
@@ -95,16 +136,25 @@ export default function QuestionPage() {
     setSaving(true);
     setFormError("");
     try {
-      const payload: any = { ...formData };
-      if (!payload.question_id) delete payload.question_id;
-
-      if (editingQuestion) {
-        await questionService.update(editingQuestion.question_id, payload);
-      } else {
-        await questionService.create(payload);
+      const payload: any = {
+        group_id: formData.group_id,
+        question_type: formData.question_type,
+        order_index: formData.order_index,
+      };
+      if (!editingQuestion && formData.question_id) {
+        payload.question_id = formData.question_id;
       }
+
+      let savedQuestion;
+      if (editingQuestion) {
+        const res = await questionService.update(editingQuestion.question_id, payload);
+        savedQuestion = res.data;
+      } else {
+        const res = await questionService.create(payload);
+        savedQuestion = res.data;
+      }
+      dispatch(upsertQuestion(savedQuestion));
       setIsModalOpen(false);
-      loadData();
     } catch (err: any) {
       setFormError(err.response?.data?.message || err.response?.data?.errors?.order_index?.[0] || "Có lỗi xảy ra.");
     } finally {
@@ -112,14 +162,52 @@ export default function QuestionPage() {
     }
   };
 
-  const handleDelete = async (q: Question) => {
-    if (window.confirm(`Bạn có chắc chắn muốn xóa câu hỏi "${q.question_id}"?`)) {
-      try {
-        await questionService.delete(q.question_id);
-        loadData();
-      } catch (err: any) {
-        alert(err.response?.data?.message || "Lỗi khi xóa câu hỏi. Có thể câu hỏi đang được sử dụng.");
+  const handleDeleteClick = (q: Question) => setDeletingQuestion(q);
+
+  const confirmDelete = async () => {
+    if (!deletingQuestion) return;
+    setIsDeleting(true);
+    const q = deletingQuestion;
+    const t = (q.question_type || "").toLowerCase();
+    try {
+      // 1. Chỉ gọi API xóa câu hỏi gốc (Backend DB đã set ON DELETE CASCADE sẽ tự xóa các bảng con)
+      await questionService.delete(q.question_id);
+
+      // 2. Dọn dẹp Redux Store ở Frontend để cập nhật UI ngay lập tức
+      if (t === "mcq") {
+        const opts = mcqOptions.filter((x: any) => x.question_id === q.question_id);
+        for (const o of opts) { dispatch(removeMcqOption(o.option_id)); }
+        const mq = mcqQuestions.find((x: any) => x.question_id === q.question_id);
+        if (mq) { dispatch(removeMcqQuestion(mq.question_id)); }
+      } else if (t === "fill") {
+        const ans = fillAnswers.filter((x: any) => x.question_id === q.question_id);
+        for (const a of ans) { dispatch(removeFillAnswer(a.answer_id)); }
+        const fq = fillQuestions.find((x: any) => x.question_id === q.question_id);
+        if (fq) { dispatch(removeFillQuestion(fq.question_id)); }
+      } else if (t === "dropdown") {
+        const opts = dropdownOptions.filter((x: any) => x.question_id === q.question_id);
+        for (const o of opts) { dispatch(removeDropdownOption(o.option_id)); }
+        const dq = dropdownQuestions.find((x: any) => x.question_id === q.question_id);
+        if (dq) { dispatch(removeDropdownQuestion(dq.question_id)); }
+      } else if (t === "matching") {
+        const ans = matchingAnswers.filter((x: any) => x.question_id === q.question_id);
+        for (const a of ans) { dispatch(removeMatchingAnswer(a.answer_id)); }
+        const mq = matchingQuestions.find((x: any) => x.question_id === q.question_id);
+        if (mq) { dispatch(removeMatchingQuestion(mq.question_id)); }
+      } else if (t === "tfng") {
+        const ans = tfngAnswers.filter((x: any) => x.question_id === q.question_id);
+        for (const a of ans) { dispatch(removeTfngAnswer(a.answer_id)); }
+        const tq = tfngQuestions.find((x: any) => x.question_id === q.question_id);
+        if (tq) { dispatch(removeTfngQuestion(tq.question_id)); }
       }
+      
+      // Xóa câu hỏi gốc khỏi store
+      dispatch(removeQuestion(q.question_id));
+      setDeletingQuestion(null);
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Lỗi khi xóa câu hỏi.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -190,10 +278,11 @@ export default function QuestionPage() {
             </select>
             <select className="form-control" style={{ width: 180 }} value={filters.type} onChange={e => setFilters({...filters, type: e.target.value})}>
               <option value="">-- Tất cả Loại --</option>
-              <option value="MCQ">Trắc nghiệm (MCQ)</option>
-              <option value="FILL">Điền từ (FILL)</option>
-              <option value="DROPDOWN">Dropdown</option>
-              <option value="matching">Nối từ (Matching)</option>
+              <option value="mcq">Multiple choice question</option>
+              <option value="fill">FILL</option>
+              <option value="dropdown">Dropdown</option>
+              <option value="matching">Matching</option>
+              <option value="map">Map</option>
               <option value="tfng">True/False/Not Given</option>
             </select>
         </div>
@@ -207,7 +296,7 @@ export default function QuestionPage() {
         <div style={{ borderRadius: 16, border: "1px solid #e2e8f0", background: "#fff", boxShadow: "0 4px 24px rgba(15,23,42,0.05)", overflow: "hidden" }}>
           <div style={{ padding: "14px 20px", borderBottom: "1px solid #f1f5f9", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#fafcff" }}>
             <span style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}>
-              Danh sách Câu hỏi ({questions.length})
+              Danh sách Câu hỏi ({filteredQuestions.length})
             </span>
             {loading && <span className="spinner" />}
           </div>
@@ -216,33 +305,40 @@ export default function QuestionPage() {
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
               <thead>
                 <tr style={{ background: "#f8fafc" }}>
-                  {["Mã", "Nhóm", "Kỹ năng", "Loại", "Thứ tự", "Thao tác"].map((h, i) => (
-                    <th key={i} style={{ padding: "10px 20px", textAlign: i === 5 ? "right" : "left", color: "#64748b", fontWeight: 600, fontSize: 12, borderBottom: "1px solid #e2e8f0" }}>
+                  {["STT", "Nhóm", "Loại", "Thứ tự", "Thao tác"].map((h, i) => (
+                    <th key={i} style={{ padding: "10px 20px", textAlign: i === 4 ? "center" : "left", color: "#64748b", fontWeight: 600, fontSize: 12, letterSpacing: "0.05em", textTransform: "uppercase", borderBottom: "1px solid #e2e8f0", width: i === 0 ? 60 : i === 4 ? 200 : "auto" }}>
                       {h}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {questions.length === 0 && !loading ? (
+                {filteredQuestions.length === 0 && !loading ? (
                    <tr>
-                    <td colSpan={6} style={{ padding: "48px 20px", textAlign: "center", color: "#94a3b8" }}>Không tìm thấy câu hỏi</td>
+                    <td colSpan={5} style={{ padding: "48px 20px", textAlign: "center", color: "#94a3b8" }}>Không tìm thấy câu hỏi</td>
                   </tr>
                 ) : (
-                  questions.map((q, index) => (
+                  filteredQuestions.map((q: any, index: number) => (
                     <tr key={q.question_id} className="q-row fade-up" style={{ borderTop: "1px solid #f1f5f9", background: "#fff", animationDelay: `${index * 30}ms` }}>
-                      <td style={{ padding: "13px 20px", fontWeight: 600, color: "#3b82f6" }}>{q.question_id}</td>
+                      {/* STT */}
+                      <td style={{ padding: "13px 20px", color: "#64748b", fontWeight: 600, fontSize: 12, textAlign: "center" }}>
+                        {String(index + 1).padStart(2, '0')}
+                      </td>
+                      {/* Nhóm */}
                       <td style={{ padding: "13px 20px", color: "#475569" }}>{getGroupName(q.group_id)}</td>
-                      <td style={{ padding: "13px 20px", color: "#475569" }}>{getSkillName(q.skill_id)}</td>
+                      {/* Loại */}
                       <td style={{ padding: "13px 20px" }}>
                         <span style={{ background: "#f1f5f9", padding: "4px 8px", borderRadius: 4, fontSize: 11, fontWeight: 600, color: "#475569" }}>
-                          {q.question_type}
+                          {TYPE_MAP[q.question_type] || q.question_type}
                         </span>
                       </td>
+                      {/* Thứ tự */}
                       <td style={{ padding: "13px 20px", color: "#475569", fontWeight: 600 }}>{q.order_index}</td>
-                      <td style={{ padding: "13px 20px", textAlign: "right", whiteSpace: "nowrap" }}>
-                        <button onClick={() => openEditModal(q)} style={{ background: "none", border: "none", cursor: "pointer", color: "#3b82f6", marginRight: 10 }}>✏️</button>
-                        <button onClick={() => handleDelete(q)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444" }}>❌</button>
+                      {/* Thao tác */}
+                      <td style={{ padding: "13px 20px", textAlign: "center", whiteSpace: "nowrap" }}>
+                        <button onClick={() => setViewingQuestion(q)} style={{ background: "none", border: "none", cursor: "pointer", color: "#10b981", marginRight: 8 }}>👁️ Xem</button>
+                        <button onClick={() => openEditModal(q)} style={{ background: "none", border: "none", cursor: "pointer", color: "#3b82f6", marginRight: 8 }}>✏️ Sửa</button>
+                        <button onClick={() => handleDeleteClick(q)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444" }}>🗑️ Xóa</button>
                       </td>
                     </tr>
                   ))
@@ -252,6 +348,48 @@ export default function QuestionPage() {
           </div>
         </div>
 
+        {/* ── Modal Xem chi tiết ── */}
+        {viewingQuestion && (
+          <div className="modal-overlay" onClick={() => setViewingQuestion(null)}>
+            <div className="modal-content fade-up" style={{ maxWidth: 520 }} onClick={e => e.stopPropagation()}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: 22 }}>📋</span>
+                  <h3 style={{ margin: 0, fontSize: 18, color: "#0f172a", fontWeight: "bold" }}>Chi tiết Câu Hỏi</h3>
+                </div>
+                <button onClick={() => setViewingQuestion(null)} style={{ background: "none", border: "none", fontSize: 24, cursor: "pointer", color: "#64748b", lineHeight: 1 }}>&times;</button>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", padding: "10px 14px", borderRadius: 8, background: "#eff6ff", border: "1px solid #bfdbfe" }}>
+                  <span style={{ fontWeight: 600, color: "#1d4ed8", fontSize: 13, width: 140, flexShrink: 0 }}>🔑 Mã câu hỏi:</span>
+                  <span style={{ color: "#1e40af", fontSize: 14, fontWeight: 700 }}>{viewingQuestion.question_id}</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", padding: "10px 14px", borderRadius: 8, background: "#f8fafc", border: "1px solid #e2e8f0" }}>
+                  <span style={{ fontWeight: 600, color: "#475569", fontSize: 13, width: 140, flexShrink: 0 }}>🗂️ Nhóm:</span>
+                  <span style={{ color: "#0f172a", fontSize: 14, fontWeight: 600 }}>{getGroupName(viewingQuestion.group_id)}</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", padding: "10px 14px", borderRadius: 8, background: "#f8fafc", border: "1px solid #e2e8f0" }}>
+                  <span style={{ fontWeight: 600, color: "#475569", fontSize: 13, width: 140, flexShrink: 0 }}>🎯 Kỹ năng:</span>
+                  <span style={{ padding: "4px 10px", background: "#fdf4ff", border: "1px solid #fbcfe8", borderRadius: 6, fontSize: 13, color: "#b83280", fontWeight: 500 }}>{getSkillName(viewingQuestion.skill_id)}</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", padding: "10px 14px", borderRadius: 8, background: "#f8fafc", border: "1px solid #e2e8f0" }}>
+                  <span style={{ fontWeight: 600, color: "#475569", fontSize: 13, width: 140, flexShrink: 0 }}>🏷️ Loại:</span>
+                  <span style={{ padding: "4px 10px", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: 6, fontSize: 12, color: "#475569", fontWeight: 600 }}>{TYPE_MAP[viewingQuestion.question_type] || viewingQuestion.question_type}</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", padding: "10px 14px", borderRadius: 8, background: "#f8fafc", border: "1px solid #e2e8f0" }}>
+                  <span style={{ fontWeight: 600, color: "#475569", fontSize: 13, width: 140, flexShrink: 0 }}>📊 Thứ tự:</span>
+                  <span style={{ padding: "4px 10px", background: "#ecfdf5", border: "1px solid #bbf7d0", borderRadius: 6, fontSize: 13, color: "#166534", fontWeight: 600 }}>{viewingQuestion.order_index}</span>
+                </div>
+              </div>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+                <button className="btn btn-secondary" onClick={() => setViewingQuestion(null)}>Đóng</button>
+                <button className="btn btn-primary" onClick={() => { setViewingQuestion(null); openEditModal(viewingQuestion); }}>✏️ Chỉnh sửa</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Modal Thêm/Sửa ── */}
         {isModalOpen && (
           <div className="modal-overlay">
             <div className="modal-content fade-up">
@@ -311,10 +449,11 @@ export default function QuestionPage() {
                 <div style={{ flex: 1 }}>
                   <label style={{ display: "block", marginBottom: 6, fontSize: 13, fontWeight: 500, color: "#475569" }}>Loại <span style={{ color: "red" }}>*</span></label>
                   <select className="form-control" value={formData.question_type} onChange={e => setFormData({...formData, question_type: e.target.value as any})}>
-                    <option value="MCQ">MCQ</option>
-                    <option value="FILL">FILL (Điền từ)</option>
-                    <option value="DROPDOWN">DROPDOWN</option>
-                    <option value="matching">Matching (Nối)</option>
+                    <option value="mcq">Multiple choice question</option>
+                    <option value="fill">FILL</option>
+                    <option value="dropdown">Dropdown</option>
+                    <option value="matching">Matching</option>
+                    <option value="map">Map</option>
                     <option value="tfng">True/False/Not Given</option>
                   </select>
                 </div>
@@ -333,6 +472,82 @@ export default function QuestionPage() {
             </div>
           </div>
         )}
+        {/* ── Modal Xác nhận Xóa ── */}
+        {deletingQuestion && (() => {
+          const related = getRelatedData(deletingQuestion);
+          return (
+            <div className="modal-overlay" onClick={() => !isDeleting && setDeletingQuestion(null)}>
+              <div className="modal-content fade-up" style={{ maxWidth: 560 }} onClick={e => e.stopPropagation()}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+                  <span style={{ fontSize: 24 }}>⚠️</span>
+                  <h3 style={{ margin: 0, fontSize: 18, color: "#0f172a" }}>Xác nhận Xóa Câu Hỏi</h3>
+                </div>
+
+                {/* Thông tin câu hỏi gốc */}
+                <div style={{ background: "#fff1f2", border: "1px solid #fecdd3", borderRadius: 10, padding: "12px 16px", marginBottom: 16 }}>
+                  <p style={{ margin: 0, fontSize: 13, color: "#be123c", fontWeight: 600, marginBottom: 6 }}>Câu hỏi sẽ bị xóa:</p>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <span style={{ background: "#fecdd3", color: "#9f1239", padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 700 }}>ID: {deletingQuestion.question_id}</span>
+                    <span style={{ background: "#f1f5f9", color: "#475569", padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>Loại: {TYPE_MAP[deletingQuestion.question_type] || deletingQuestion.question_type}</span>
+                    <span style={{ background: "#f1f5f9", color: "#475569", padding: "3px 10px", borderRadius: 20, fontSize: 12 }}>Nhóm: {getGroupName(deletingQuestion.group_id)}</span>
+                  </div>
+                </div>
+
+                {/* Dữ liệu liên quan */}
+                {related ? (
+                  <div style={{ marginBottom: 16 }}>
+                    <p style={{ margin: "0 0 10px", fontSize: 13, fontWeight: 600, color: "#334155" }}>Dữ liệu liên quan sẽ bị xóa theo:</p>
+
+                    {/* Nội dung câu hỏi con */}
+                    {related.question && (
+                      <div style={{ background: "#fef9f0", border: "1px solid #fed7aa", borderRadius: 8, padding: "10px 14px", marginBottom: 10 }}>
+                        <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: "#92400e", marginBottom: 4 }}>📄 Câu hỏi {related.type}:</p>
+                        <p style={{ margin: 0, fontSize: 13, color: "#78350f" }}>{(related.question as any).content}</p>
+                      </div>
+                    )}
+
+                    {/* Danh sách đáp án/tùy chọn */}
+                    {related.children.length > 0 ? (
+                      <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, padding: "10px 14px" }}>
+                        <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 600, color: "#475569" }}>🗂️ {related.childLabel} ({related.children.length} mục):</p>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 4, maxHeight: 160, overflowY: "auto" }}>
+                          {related.children.map((child: any) => (
+                            <div key={related.childKey(child)} style={{ fontSize: 12, color: "#64748b", padding: "4px 8px", background: "#fff", borderRadius: 6, border: "1px solid #e2e8f0" }}>
+                              {related.childDisplay(child)}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, padding: "10px 14px", color: "#94a3b8", fontSize: 13 }}>
+                        Không có {related.childLabel.toLowerCase()} nào.
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, padding: "10px 14px", marginBottom: 16, color: "#94a3b8", fontSize: 13 }}>
+                    Không tìm thấy dữ liệu khóa ngoại liên quan.
+                  </div>
+                )}
+
+                <p style={{ margin: "0 0 16px", fontSize: 13, color: "#64748b", fontStyle: "italic" }}>
+                  ⚠️ Hành động này không thể hoàn tác. Tất cả dữ liệu trên sẽ bị xóa vĩnh viễn.
+                </p>
+
+                <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+                  <button className="btn btn-secondary" onClick={() => setDeletingQuestion(null)} disabled={isDeleting}>Hủy</button>
+                  <button
+                    onClick={confirmDelete}
+                    disabled={isDeleting}
+                    style={{ padding: "8px 20px", borderRadius: 8, border: "none", background: isDeleting ? "#fca5a5" : "#ef4444", color: "white", cursor: isDeleting ? "not-allowed" : "pointer", fontWeight: 600, fontSize: 13 }}
+                  >
+                    {isDeleting ? "Đang xóa..." : "🗑️ Xác nhận Xóa"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </>
   );
