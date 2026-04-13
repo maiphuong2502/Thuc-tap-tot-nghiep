@@ -20,8 +20,16 @@ function Login() {
         localStorage.setItem('access_token', res.data.token);
         if (res.data.user) {
           localStorage.setItem('user', JSON.stringify(res.data.user));
+          const role = res.data.user.role;
+          if (role === 0) {
+            navigate('/admin', { replace: true });
+          } else {
+            navigate('/user/dashboard', { replace: true });
+          }
+        } else {
+          // Default fallback
+          navigate('/admin', { replace: true });
         }
-        navigate('/admin', { replace: true });
       } else {
         setError('Đăng nhập thất bại. Vui lòng thử lại.');
       }
@@ -39,8 +47,8 @@ function Login() {
   return (
     <div className="login-page">
       <div className="login-card">
-        <h1>Trang quản trị</h1>
-        <p className="login-subtitle">Đăng nhập để tiếp tục</p>
+        <h1>Đăng nhập hệ thống</h1>
+        <p className="login-subtitle">Nhập thông tin để tiếp tục</p>
 
         <form onSubmit={handleSubmit} className="login-form">
           {error && <div className="login-error">{error}</div>}

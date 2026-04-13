@@ -33,22 +33,34 @@ class AppErrorBoundary extends Component<{ children: ReactNode }, { error: Error
   }
 }
 
+import UserLayout from './UserLayout';
+
 function App() {
   return (
     <AppErrorBoundary>
       <div className="App">
         <Routes>
-          <Route path="/" element={<Navigate to="/admin" replace />} />
           <Route path="/login" element={<Login />} />
           <Route
-            path="/admin"
+            path="/user/*"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRole={1}>
+                <UserLayout />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/*"
+            element={
+              <ProtectedRoute allowedRole={0}>
                 <AdminLayout />
               </ProtectedRoute>
             }
           />
-          <Route path="*" element={<Navigate to="/admin" replace />} />
+          {/* Redirect root to appropriate dashboard */}
+          <Route path="/" element={<Navigate to="/user/dashboard" replace />} />
+          {/* Catch all fallback */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </div>
     </AppErrorBoundary>

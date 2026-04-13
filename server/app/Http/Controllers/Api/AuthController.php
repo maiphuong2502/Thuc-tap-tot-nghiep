@@ -25,7 +25,7 @@ class AuthController extends Controller
 
         $user = User::where('username', $request->username)->first();
 
-        // Mật khẩu dạng thuần (không hash) theo yêu cầu hiện tại của hệ thống.
+        // Password được lưu dạng thuần theo yêu cầu hệ thống hiện tại.
         if (!$user || $request->password !== $user->password) {
             throw ValidationException::withMessages([
                 'username' => ['Tên đăng nhập hoặc mật khẩu không đúng.'],
@@ -38,12 +38,7 @@ class AuthController extends Controller
             ]);
         }
 
-        if ((int) $user->role !== self::ROLE_ADMIN) {
-            throw ValidationException::withMessages([
-                'username' => ['Bạn không có quyền truy cập trang quản trị.'],
-            ]);
-        }
-
+        // Bỏ kiểm tra role admin vì giờ hệ thống dùng chung cho cả user và admin.
         $user->tokens()->delete();
         $token = $user->createToken('admin-token')->plainTextToken;
 
