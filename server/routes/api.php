@@ -7,9 +7,18 @@ use App\Http\Controllers\Api\SkillController;
 use App\Http\Controllers\Api\TopicController;
 Route::post('/auth/login', [AuthController::class, 'login']);
 
+Route::get('/debug-test', function() {
+    return \App\Models\Test::with('parts.questionGroups')->first();
+});
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
+
+    // API dành cho Học viên
+
+    Route::get('/user/exams', [\App\Http\Controllers\Api\UserExamController::class, 'index']);
+    Route::get('/user/exams/{id}/full-structure', [\App\Http\Controllers\Api\UserExamController::class, 'getFullStructure']);
 
     Route::middleware('admin')->group(function () {
         // Quản lý tài khoản (chỉ admin)
@@ -17,7 +26,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/users', [UserController::class, 'store']);
         Route::put('/users/{userId}', [UserController::class, 'update']);
         Route::delete('/users/{userId}', [UserController::class, 'destroy']);
-        
+
         Route::get('/skills', [SkillController::class, 'index']);
 
         // Topics
@@ -133,5 +142,63 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/tfng-answers/{id}', [\App\Http\Controllers\Api\TfngAnswerController::class, 'show']);
         Route::put('/tfng-answers/{id}', [\App\Http\Controllers\Api\TfngAnswerController::class, 'update']);
         Route::delete('/tfng-answers/{id}', [\App\Http\Controllers\Api\TfngAnswerController::class, 'destroy']);
+
+        // Writing Submissions
+        Route::get('/writing-submissions', [\App\Http\Controllers\Api\WritingSubmissionController::class, 'index']);
+        Route::post('/writing-submissions', [\App\Http\Controllers\Api\WritingSubmissionController::class, 'store']);
+        Route::get('/writing-submissions/{id}', [\App\Http\Controllers\Api\WritingSubmissionController::class, 'show']);
+        Route::put('/writing-submissions/{id}', [\App\Http\Controllers\Api\WritingSubmissionController::class, 'update']);
+        Route::delete('/writing-submissions/{id}', [\App\Http\Controllers\Api\WritingSubmissionController::class, 'destroy']);
+
+        // Speaking Submissions
+        Route::get('/speaking-submissions', [\App\Http\Controllers\Api\SpeakingSubmissionController::class, 'index']);
+        Route::post('/speaking-submissions', [\App\Http\Controllers\Api\SpeakingSubmissionController::class, 'store']);
+        Route::get('/speaking-submissions/{id}', [\App\Http\Controllers\Api\SpeakingSubmissionController::class, 'show']);
+        Route::put('/speaking-submissions/{id}', [\App\Http\Controllers\Api\SpeakingSubmissionController::class, 'update']);
+        Route::delete('/speaking-submissions/{id}', [\App\Http\Controllers\Api\SpeakingSubmissionController::class, 'destroy']);
+
+        // Results Admin
+        Route::get('/results', [\App\Http\Controllers\Api\ResultController::class, 'index']);
+
+        // McqAnswers Admin
+        Route::get('/mcq-answers', [\App\Http\Controllers\Api\McqAnswerController::class, 'index']);
+        Route::post('/mcq-answers', [\App\Http\Controllers\Api\McqAnswerController::class, 'store']);
+        Route::get('/mcq-answers/{id}', [\App\Http\Controllers\Api\McqAnswerController::class, 'show']);
+        Route::put('/mcq-answers/{id}', [\App\Http\Controllers\Api\McqAnswerController::class, 'update']);
+        Route::delete('/mcq-answers/{id}', [\App\Http\Controllers\Api\McqAnswerController::class, 'destroy']);
+
+        // Fill User Answers Admin
+        Route::get('/fill-user-answers', [\App\Http\Controllers\Api\FillUserAnswerController::class, 'index']);
+        Route::post('/fill-user-answers', [\App\Http\Controllers\Api\FillUserAnswerController::class, 'store']);
+        Route::get('/fill-user-answers/{id}', [\App\Http\Controllers\Api\FillUserAnswerController::class, 'show']);
+        Route::put('/fill-user-answers/{id}', [\App\Http\Controllers\Api\FillUserAnswerController::class, 'update']);
+        Route::delete('/fill-user-answers/{id}', [\App\Http\Controllers\Api\FillUserAnswerController::class, 'destroy']);
+
+        // Dropdown Answers Admin
+        Route::get('/dropdown-answers', [\App\Http\Controllers\Api\DropdownAnswerController::class, 'index']);
+        Route::post('/dropdown-answers', [\App\Http\Controllers\Api\DropdownAnswerController::class, 'store']);
+        Route::get('/dropdown-answers/{id}', [\App\Http\Controllers\Api\DropdownAnswerController::class, 'show']);
+        Route::put('/dropdown-answers/{id}', [\App\Http\Controllers\Api\DropdownAnswerController::class, 'update']);
+        Route::delete('/dropdown-answers/{id}', [\App\Http\Controllers\Api\DropdownAnswerController::class, 'destroy']);
+
+        // Matching User Answers Admin
+        Route::get('/matching-user-answers', [\App\Http\Controllers\Api\MatchingUserAnswerController::class, 'index']);
+        Route::post('/matching-user-answers', [\App\Http\Controllers\Api\MatchingUserAnswerController::class, 'store']);
+        Route::get('/matching-user-answers/{id}', [\App\Http\Controllers\Api\MatchingUserAnswerController::class, 'show']);
+        Route::put('/matching-user-answers/{id}', [\App\Http\Controllers\Api\MatchingUserAnswerController::class, 'update']);
+        Route::delete('/matching-user-answers/{id}', [\App\Http\Controllers\Api\MatchingUserAnswerController::class, 'destroy']);
+
+        // TFNG User Answers Admin
+        Route::get('/tfng-user-answers', [\App\Http\Controllers\Api\TfngUserAnswerController::class, 'index']);
+        Route::post('/tfng-user-answers', [\App\Http\Controllers\Api\TfngUserAnswerController::class, 'store']);
+        Route::get('/tfng-user-answers/{id}', [\App\Http\Controllers\Api\TfngUserAnswerController::class, 'show']);
+        Route::put('/tfng-user-answers/{id}', [\App\Http\Controllers\Api\TfngUserAnswerController::class, 'update']);
+        Route::delete('/tfng-user-answers/{id}', [\App\Http\Controllers\Api\TfngUserAnswerController::class, 'destroy']);
     });
+
+    // Test Results (Học viên & Admin)
+    Route::post('/submit-test', [\App\Http\Controllers\Api\ResultController::class, 'submitTest']);
+    Route::get('/results/{id}', [\App\Http\Controllers\Api\ResultController::class, 'show']);
+    Route::get('/results/{id}/review', [\App\Http\Controllers\Api\ResultController::class, 'review']);
+    Route::get('/my-results', [\App\Http\Controllers\Api\ResultController::class, 'userResults']);
 });
