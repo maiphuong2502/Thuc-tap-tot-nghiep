@@ -46,7 +46,7 @@ const ResultDetail: React.FC = () => {
                     {/* Score Highlights */}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, marginBottom: 40 }}>
                         <div style={{ textAlign: 'center', padding: 24, background: '#f8fafc', borderRadius: 16, border: '1px solid #e2e8f0' }}>
-                            <div style={{ fontSize: 13, color: '#64748b', fontWeight: 700, textTransform: 'uppercase', marginBottom: 8 }}>Số câu đúng</div>
+                            <div style={{ fontSize: 13, color: '#64748b', fontWeight: 700, textTransform: 'uppercase', marginBottom: 8 }}>Số đáp án đúng</div>
                             <div style={{ fontSize: 32, fontWeight: 800, color: '#10b981' }}>{result.correct_count}<span style={{ fontSize: 16, color: '#94a3b8', marginLeft: 4 }}>/{result.total_questions}</span></div>
                         </div>
                         <div style={{ textAlign: 'center', padding: 24, background: '#eff6ff', borderRadius: 16, border: '1px solid #dbeafe' }}>
@@ -64,10 +64,10 @@ const ResultDetail: React.FC = () => {
                         <div style={{ padding: '16px 24px', background: '#f1f5f9', borderBottom: '1px solid #e2e8f0', fontWeight: 700, color: '#334155' }}>Thông số chi tiết</div>
                         <div style={{ padding: '12px 0' }}>
                             {[
-                                { label: 'Tổng số câu hỏi', value: result.total_questions, color: '#1e293b' },
-                                { label: 'Số câu đúng', value: result.correct_count, color: '#10b981' },
-                                { label: 'Số câu sai', value: result.wrong_count, color: '#ef4444' },
-                                { label: 'Số câu bỏ trống', value: result.skipped_count, color: '#94a3b8' },
+                                { label: 'Tổng số đáp án', value: result.total_questions, color: '#1e293b' },
+                                { label: 'Đáp án đúng', value: result.correct_count, color: '#10b981' },
+                                { label: 'Đáp án sai', value: result.wrong_count, color: '#ef4444' },
+                                { label: 'Bỏ trống', value: Math.max(0, result.total_questions - result.correct_count - result.wrong_count), color: '#94a3b8' },
                             ].map((item, idx) => (
                                 <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 24px', borderBottom: idx === 3 ? 'none' : '1px solid #f1f5f9' }}>
                                     <span style={{ color: '#64748b', fontSize: 15 }}>{item.label}</span>
@@ -108,23 +108,30 @@ const ResultDetail: React.FC = () => {
                         <button 
                             id="btn-back-to-exams"
                             onClick={() => navigate('/user/exams')}
-                            style={{ padding: '12px 24px', borderRadius: 12, background: '#fff', border: '1px solid #cbd5e1', color: '#475569', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', fontSize: 14 }}
+                            style={{ padding: '12px 20px', borderRadius: 12, background: '#fff', border: '1px solid #cbd5e1', color: '#475569', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', fontSize: 14 }}
                         >
-                            Về danh sách đề
+                            Danh sách đề
                         </button>
                         <button 
                             id="btn-review-test"
                             onClick={() => navigate(`/user/results/${id}/review`)}
-                            style={{ padding: '12px 24px', borderRadius: 12, background: '#10b981', border: 'none', color: '#fff', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 6px -1px rgba(16,185,129,0.3)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}
+                            style={{ padding: '12px 20px', borderRadius: 12, background: '#10b981', border: 'none', color: '#fff', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 6px -1px rgba(16,185,129,0.3)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}
                         >
-                            <span>🔍</span> Xem lại bài làm
+                            <span>🔍</span> Xem lại
+                        </button>
+                        <button 
+                            id="btn-retake-test"
+                            onClick={() => navigate(`/user/exam/${result.test_id || result.test?.test_id}/take`)}
+                            style={{ padding: '12px 20px', borderRadius: 12, background: '#f59e0b', border: 'none', color: '#fff', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 6px -1px rgba(245,158,11,0.3)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}
+                        >
+                            <span>🔄</span> Thi lại
                         </button>
                         <button 
                             id="btn-back-to-dashboard"
                             onClick={() => navigate('/user/dashboard')}
-                            style={{ padding: '12px 24px', borderRadius: 12, background: '#3b82f6', border: 'none', color: '#fff', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 6px -1px rgba(59,130,246,0.3)', fontSize: 14 }}
+                            style={{ padding: '12px 20px', borderRadius: 12, background: '#3b82f6', border: 'none', color: '#fff', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 6px -1px rgba(59,130,246,0.3)', fontSize: 14 }}
                         >
-                            Về trang cá nhân
+                            Trang cá nhân
                         </button>
                     </div>
                 </div>

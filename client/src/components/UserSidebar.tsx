@@ -4,12 +4,9 @@ import { useNavigate } from "react-router-dom";
 const NAV = [
   { id: "dashboard", icon: "⊞",  label: "Tổng quan" },
   { id: "schedule",  icon: "📅", label: "Lịch thi" },
-  { id: "listening", icon: "🎧", label: "Luyện Listening" },
-  { id: "reading",   icon: "📖", label: "Luyện Reading" },
-  { id: "writing",   icon: "✍️", label: "Luyện Writing" },
-  { id: "speaking",  icon: "🎙️", label: "Luyện Speaking" },
+  { id: "exams",     icon: "📝", label: "Làm Bài Thi" },
   { id: "mock_test", icon: "📝", label: "Bài thi thử" },
-  { id: "result",    icon: "📊", label: "Kết quả" },
+  { id: "results",   icon: "📊", label: "Kết quả" },
 ];
 
 export default function UserSidebar({ page, collapsed, setCollapsed }) {

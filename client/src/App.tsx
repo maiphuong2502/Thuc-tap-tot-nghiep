@@ -34,6 +34,9 @@ class AppErrorBoundary extends Component<{ children: ReactNode }, { error: Error
 }
 
 import UserLayout from './UserLayout';
+import ExamTake from './pages/user/ExamTake';
+import ResultDetail from './pages/user/ResultDetail';
+import ResultReview from './pages/user/ResultReview';
 
 function App() {
   return (
