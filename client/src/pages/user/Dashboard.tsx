@@ -1,8 +1,108 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Calendar from "../../components/Calendar";
+import dashboardService from "../../services/dashboardService";
+import { 
+  ResponsiveContainer, 
+  RadarChart, 
+  PolarGrid, 
+  PolarAngleAxis, 
+  Radar,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from 'recharts';
 
 // ─── mini components ────────────────────────────────────────────────────────
 
+function SkillRadarChart({ data, skills }: { data: any[], skills: any[] }) {
+  // Map skills data to recharts format
+  const chartData = skills.map(s => ({
+    subject: s.label,
+    A: s.score || 0,
+    fullMark: 9,
+  }));
+
+  return (
+    <div style={{ height: 320, width: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
+          <PolarGrid stroke="#e2e8f0" />
+          <PolarAngleAxis 
+             dataKey="subject" 
+             tick={{ fill: "#64748b", fontSize: 13, fontWeight: 600 }}
+          />
+          <Radar
+            name="Band Score"
+            dataKey="A"
+            stroke="#8b5cf6"
+            strokeWidth={3}
+            fill="#8b5cf6"
+            fillOpacity={0.15}
+          />
+        </RadarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+function BandTrendChart({ trend }: { trend: any[] }) {
+  if (!trend || trend.length === 0) {
+    return (
+        <div style={{ height: 320, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#94a3b8", gap: 12 }}>
+            <div style={{ fontSize: 40 }}>📈</div>
+            <div style={{ fontSize: 14 }}>Chưa có đủ dữ liệu để hiển thị xu hướng.</div>
+        </div>
+    );
+  }
+
+  return (
+    <div style={{ height: 320, width: "100%", padding: "10px 0" }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={trend} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+          <defs>
+            <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2}/>
+              <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+          <XAxis 
+            dataKey="label" 
+            axisLine={false} 
+            tickLine={false} 
+            tick={{ fill: "#94a3b8", fontSize: 12 }}
+            dy={10}
+          />
+          <YAxis 
+            axisLine={false} 
+            tickLine={false} 
+            tick={{ fill: "#94a3b8", fontSize: 12 }}
+            domain={[0, 9]}
+            ticks={[0, 3, 6, 9]}
+          />
+          <Tooltip 
+            contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)", fontSize: 13 }}
+            itemStyle={{ fontWeight: 800, color: "#4f46e5" }}
+            labelStyle={{ color: "#94a3b8", marginBottom: 4 }}
+          />
+          <Area 
+            type="monotone" 
+            dataKey="value" 
+            stroke="#6366f1" 
+            strokeWidth={3}
+            fillOpacity={1} 
+            fill="url(#colorValue)" 
+            dot={{ r: 6, fill: "#fff", stroke: "#6366f1", strokeWidth: 3 }}
+            activeDot={{ r: 8, strokeWidth: 0, fill: "#6366f1" }}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
 function StatCard({
   icon,
   label,
@@ -132,57 +232,75 @@ function SkillRow({
   );
 }
 
-function SuggestionRow({
-  tag,
-  tagColor,
-  title,
-  duration,
-  level,
+function AnalysisCard({
+  icon,
+  label,
+  value,
+  percentage,
+  color,
+  bgColor,
 }: {
-  tag: string;
-  tagColor: string;
-  title: string;
-  duration: string;
-  level: string;
+  icon: string;
+  label: string;
+  value: number;
+  percentage: number;
+  color: string;
+  bgColor: string;
 }) {
-  const [hover, setHover] = useState(false);
   return (
     <div
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
       style={{
+        background: bgColor,
+        border: `1px solid ${color}20`,
+        borderRadius: 16,
+        padding: "16px 20px",
+        flex: 1,
         display: "flex",
-        alignItems: "center",
-        gap: 14,
-        padding: "12px 14px",
-        borderRadius: 12,
-        background: hover ? "#f8faff" : "transparent",
-        cursor: "pointer",
-        transition: "background 0.15s",
-        border: "1px solid " + (hover ? "#dbeafe" : "transparent"),
+        flexDirection: "column",
+        gap: 8,
       }}
     >
-      <div
-        style={{
-          width: 10,
-          height: 10,
-          borderRadius: 3,
-          background: tagColor,
-          flexShrink: 0,
-          marginTop: 1,
-        }}
-      />
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: "#1e293b", marginBottom: 2 }}>
-          {title}
-        </div>
-        <div style={{ fontSize: 11, color: "#94a3b8" }}>
-          {tag} · {duration} · {level}
+      <div style={{ fontSize: 20, color: "#94a3b8" }}>{icon}</div>
+      <div style={{ fontSize: 28, fontWeight: 800, color: color, lineHeight: 1 }}>{value}</div>
+      <div>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#64748b" }}>{label}</div>
+        <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>{percentage}%</div>
+      </div>
+    </div>
+  );
+}
+
+function AnalysisProgressBar({
+  label,
+  value,
+  total,
+  color,
+}: {
+  label: string;
+  value: number;
+  total: number;
+  color: string;
+}) {
+  const pct = total > 0 ? (value / total) * 100 : 0;
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 12 }}>
+      <div style={{ width: 80, fontSize: 14, fontWeight: 600, color: "#1e293b", textAlign: "right" }}>{label}</div>
+      <div style={{ flex: 1, height: 28, background: "#f1f5f9", borderRadius: 8, position: "relative", overflow: "hidden" }}>
+        <div
+          style={{
+            height: "100%",
+            width: `${pct}%`,
+            background: color,
+            borderRadius: 8,
+            display: "flex",
+            alignItems: "center",
+            paddingLeft: 12,
+            transition: "width 0.8s ease",
+          }}
+        >
+          <span style={{ color: "#fff", fontSize: 12, fontWeight: 700 }}>{value} lượt</span>
         </div>
       </div>
-      <svg width="14" height="14" fill="none" stroke="#c0cad5" strokeWidth="2">
-        <path d="M5 3l4 4-4 4" />
-      </svg>
     </div>
   );
 }
@@ -190,26 +308,47 @@ function SuggestionRow({
 // ─── main page ────────────────────────────────────────────────────────────────
 
 export default function UserDashboard() {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("attempts");
+
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const username = user.username || "Học viên";
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await dashboardService.getStats();
+        setData(res.data);
+      } catch (err) {
+        console.error("Failed to fetch dashboard stats", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
 
   const hour = new Date().getHours();
   const greeting =
     hour < 5 ? "Đêm khuya rồi" : hour < 12 ? "Chào buổi sáng" : hour < 18 ? "Chào buổi chiều" : "Chào buổi tối";
 
-  const skills = [
-    { icon: "🎧", label: "Listening", score: 0, band: "—", color: "#3b82f6", tests: 0 },
-    { icon: "📖", label: "Reading", score: 0, band: "—", color: "#10b981", tests: 0 },
-    { icon: "✍️", label: "Writing", score: 0, band: "—", color: "#f59e0b", tests: 0 },
-    { icon: "🎙️", label: "Speaking", score: 0, band: "—", color: "#8b5cf6", tests: 0 },
+  const skills = data?.skill_stats || [
+    { icon: "🎧", label: "Listening", score: 0, band: "—", color: "#3b82f6", tests: 0, percentage: 0 },
+    { icon: "📖", label: "Reading", score: 0, band: "—", color: "#10b981", tests: 0, percentage: 0 },
+    { icon: "✍️", label: "Writing", score: 0, band: "—", color: "#f59e0b", tests: 0, percentage: 0 },
+    { icon: "🎙️", label: "Speaking", score: 0, band: "—", color: "#8b5cf6", tests: 0, percentage: 0 },
   ];
 
-  const suggestions = [
-    { tag: "Listening", tagColor: "#3b82f6", title: "Điền vào bảng — Section 2", duration: "25 phút", level: "Cơ bản" },
-    { tag: "Reading", tagColor: "#10b981", title: "True / False / Not Given", duration: "20 phút", level: "Trung bình" },
-    { tag: "Writing", tagColor: "#f59e0b", title: "Task 1 — Mô tả biểu đồ đường", duration: "40 phút", level: "Cơ bản" },
-    { tag: "Speaking", tagColor: "#8b5cf6", title: "Part 1 — Chủ đề gia đình", duration: "10 phút", level: "Cơ bản" },
-  ];
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh', color: '#64748b', fontWeight: 600 }}>
+        Đang tải dữ liệu học tập...
+      </div>
+    );
+  }
+
+  const hasBandScore = data && data.average_band > 0;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
@@ -259,13 +398,16 @@ export default function UserDashboard() {
               lineHeight: 1.3,
             }}
           >
-            Bạn chưa có điểm band score.
+            {hasBandScore ? `Band Score hiện tại: ${data.average_band}` : "Bạn chưa có điểm band score."}
           </h2>
           <p style={{ margin: "0 0 20px", fontSize: 13.5, color: "rgba(255,255,255,0.75)", lineHeight: 1.7, maxWidth: 460 }}>
-            Hoàn thành ít nhất <strong style={{ color: "#fff" }}>1 bài thi thử</strong> để hệ thống xác định
-            trình độ và lên lộ trình luyện tập cá nhân hoá cho bạn.
+            {hasBandScore 
+              ? "Tuyệt vời! Tiếp tục rèn luyện để nâng cao trình độ và đạt mục tiêu đề ra nhé." 
+              : "Hoàn thành ít nhất bài thi thử để hệ thống xác định trình độ và lên lộ trình luyện tập cá nhân hoá cho bạn."
+            }
           </p>
           <button
+            onClick={() => window.location.href = "/user/exams"}
             style={{
               padding: "10px 22px",
               borderRadius: 10,
@@ -323,13 +465,13 @@ export default function UserDashboard() {
 
       {/* ── 4 stat cards ─────────────────────────────────────────────────── */}
       <div style={{ display: "flex", gap: 16 }}>
-        <StatCard icon="📄" label="Bài đã làm" value="0" sub="Chưa có dữ liệu" accent="#3b82f6" />
-        <StatCard icon="🎯" label="Tỷ lệ đúng" value="—" sub="Cần ít nhất 1 bài" accent="#10b981" />
-        <StatCard icon="⏱" label="Thời gian học" value="0 h" sub="Tuần này" accent="#f59e0b" />
-        <StatCard icon="⭐" label="Band dự kiến" value="—" sub="Làm bài để tính" accent="#8b5cf6" />
+        <StatCard icon="📄" label="Bài đã làm" value={data?.total_tests?.toString() || "0"} sub="Từ trước tới nay" accent="#3b82f6" />
+        <StatCard icon="🎯" label="Tỷ lệ đúng" value={data?.accuracy ? `${data.accuracy}%` : "—"} sub="Trung bình" accent="#10b981" />
+        <StatCard icon="⏱" label="Thời gian học" value="0.5 h" sub="Tuần này" accent="#f59e0b" />
+        <StatCard icon="⭐" label="Band dự kiến" value={data?.average_band?.toString() || "—"} sub="Trên 9.0" accent="#8b5cf6" />
       </div>
 
-      {/* ── grid: skills + calendar    suggestions ───────────────────────── */}
+      {/* ── grid: skills + calendar    analysis ───────────────────────── */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 20, alignItems: "start" }}>
 
         {/* left col */}
@@ -348,42 +490,95 @@ export default function UserDashboard() {
               <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "#0f172a" }}>Tiến độ 4 kỹ năng</h3>
               <span style={{ fontSize: 12, color: "#94a3b8" }}>Dựa trên bài thi gần nhất</span>
             </div>
-            {skills.map((s) => (
+            {skills.map((s: any) => (
               <SkillRow key={s.label} {...s} />
             ))}
             <div style={{ paddingTop: 4 }}></div>
           </div>
 
-          {/* suggestions */}
+          {/* learning analysis replacement */}
           <div
             style={{
               background: "#fff",
               border: "1px solid #e9ecf0",
               borderRadius: 18,
               padding: "24px 28px",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
             }}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-              <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "#0f172a" }}>Đề xuất luyện tập hôm nay</h3>
-              <button
-                style={{
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: "#2563eb",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  padding: 0,
-                }}
-              >
-                Xem tất cả
-              </button>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "#1e293b", display: "flex", alignItems: "center", gap: 8 }}>
+                  📊 Phân tích học tập
+                </h3>
+                <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>
+                  Toàn bộ lịch sử · Cập nhật {data?.update_date || "—"}
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <div style={{ background: "#f0f7ff", color: "#2563eb", padding: "6px 12px", borderRadius: 20, fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
+                  🔥 {data?.tests_this_week || 0} bài / tuần
+                </div>
+                <div style={{ background: "#f0fdf4", color: "#16a34a", padding: "6px 12px", borderRadius: 20, fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
+                  ⬆️ Band {data?.average_band || "—"}
+                </div>
+              </div>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              {suggestions.map((s) => (
-                <SuggestionRow key={s.title} {...s} />
+
+            {/* Tabs */}
+            <div style={{ display: "flex", gap: 12, background: "#f8fafc", padding: "6px", borderRadius: 12, marginBottom: 24, width: "fit-content" }}>
+              {["attempts", "skills", "trend"].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  style={{
+                    padding: "8px 16px",
+                    borderRadius: 8,
+                    border: "none",
+                    background: activeTab === tab ? "#fff" : "transparent",
+                    color: activeTab === tab ? "#1e293b" : "#64748b",
+                    fontSize: 13,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    boxShadow: activeTab === tab ? "0 2px 4px rgba(0,0,0,0.05)" : "none",
+                    transition: "all 0.2s",
+                  }}
+                >
+                  {tab === "attempts" ? "Tổng lượt làm bài" : tab === "skills" ? "Kỹ năng" : "Xu hướng band"}
+                </button>
               ))}
             </div>
+
+            {/* Content for attempts tab */}
+            {activeTab === "attempts" && (
+              <>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 16, marginBottom: 32 }}>
+                  <AnalysisCard icon="🎧" label="Listening" value={skills[0].tests} percentage={skills[0].percentage} color="#3b82f6" bgColor="#f0f7ff" />
+                  <AnalysisCard icon="📖" label="Reading" value={skills[1].tests} percentage={skills[1].percentage} color="#10b981" bgColor="#f0fdf4" />
+                  <AnalysisCard icon="✍️" label="Writing" value={skills[2].tests} percentage={skills[2].percentage} color="#f59e0b" bgColor="#fffbeb" />
+                  <AnalysisCard icon="🎙️" label="Speaking" value={skills[3].tests} percentage={skills[3].percentage} color="#8b5cf6" bgColor="#f5f3ff" />
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  <AnalysisProgressBar label="Listening" value={skills[0].tests} total={data?.total_attempts_all_skills} color="#3b82f6" />
+                  <AnalysisProgressBar label="Reading" value={skills[1].tests} total={data?.total_attempts_all_skills} color="#10b981" />
+                  <AnalysisProgressBar label="Writing" value={skills[2].tests} total={data?.total_attempts_all_skills} color="#f59e0b" />
+                  <AnalysisProgressBar label="Speaking" value={skills[3].tests} total={data?.total_attempts_all_skills} color="#8b5cf6" />
+                </div>
+
+                <div style={{ textAlign: "right", color: "#94a3b8", fontSize: 13, fontWeight: 600, marginTop: 12 }}>
+                  Tổng cộng: <span style={{ color: "#1e293b", fontSize: 15 }}>{data?.total_attempts_all_skills || 0} lượt</span>
+                </div>
+              </>
+            )}
+
+            {activeTab === "skills" && (
+                <SkillRadarChart data={[]} skills={skills} />
+            )}
+
+            {activeTab === "trend" && (
+                <BandTrendChart trend={data?.band_trend || []} />
+            )}
           </div>
         </div>
 
@@ -391,7 +586,7 @@ export default function UserDashboard() {
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <Calendar />
 
-          {/* recent tests empty state */}
+          {/* recent tests block */}
           <div
             style={{
               background: "#fff",
@@ -403,39 +598,53 @@ export default function UserDashboard() {
             <h3 style={{ margin: "0 0 16px", fontSize: 15, fontWeight: 700, color: "#0f172a" }}>
               Bài thi gần đây
             </h3>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                padding: "24px 0",
-                gap: 10,
-                color: "#94a3b8",
-              }}
-            >
-              <div
+            {data?.recent_results?.length > 0 ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    {data.recent_results.map((res: any) => (
+                        <div key={res.result_id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ minWidth: 0 }}>
+                                <div style={{ fontSize: 13, fontWeight: 700, color: "#1e293b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{res.test?.title || "IELTS Test"}</div>
+                                <div style={{ fontSize: 11, color: "#94a3b8" }}>{new Date(res.created_at).toLocaleDateString("vi-VN")}</div>
+                            </div>
+                            <div style={{ fontSize: 14, fontWeight: 800, color: "#2563eb" }}>{res.band_score}</div>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div
                 style={{
-                  width: 52,
-                  height: 52,
-                  borderRadius: 14,
-                  background: "#f8fafc",
-                  border: "1.5px dashed #e2e8f0",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 22,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    padding: "24px 0",
+                    gap: 10,
+                    color: "#94a3b8",
                 }}
-              >
-                📋
-              </div>
-              <p style={{ margin: 0, fontSize: 13, textAlign: "center", lineHeight: 1.6 }}>
-                Chưa có lịch sử bài thi.
-                <br />
-                <span style={{ color: "#2563eb", fontWeight: 600, cursor: "pointer" }}>
-                  Bắt đầu bài đầu tiên →
-                </span>
-              </p>
-            </div>
+                >
+                <div
+                    style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: 14,
+                    background: "#f8fafc",
+                    border: "1.5px dashed #e2e8f0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 22,
+                    }}
+                >
+                    📋
+                </div>
+                <p style={{ margin: 0, fontSize: 13, textAlign: "center", lineHeight: 1.6 }}>
+                    Chưa có lịch sử bài thi.
+                    <br />
+                    <span onClick={() => window.location.href='/user/exams'} style={{ color: "#2563eb", fontWeight: 600, cursor: "pointer" }}>
+                    Bắt đầu bài đầu tiên →
+                    </span>
+                </p>
+                </div>
+            )}
           </div>
         </div>
       </div>
