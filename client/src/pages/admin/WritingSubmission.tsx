@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import writingSubmissionService from "../../services/writingSubmissionService";
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
-import { upsertWritingSubmission, removeWritingSubmission } from "../../app/cacheSlice";
+import { fetchWritingSubmissions } from "../../app/cacheSlice";
 
 export default function WritingSubmissionPage() {
   const { writingSubmissions, users, questions, loading } = useAppSelector(state => state.cache);
@@ -76,16 +76,13 @@ export default function WritingSubmissionPage() {
         score: formData.score === "" ? null : Number(formData.score),
       };
 
-      let saved;
       if (editingSubmission) {
-        const res = await writingSubmissionService.update(editingSubmission.writing_id, payload);
-        saved = res.data.data;
+        await writingSubmissionService.update(editingSubmission.writing_id, payload);
       } else {
         if (formData.writing_id) payload.writing_id = formData.writing_id;
-        const res = await writingSubmissionService.create(payload);
-        saved = res.data.data;
+        await writingSubmissionService.create(payload);
       }
-      dispatch(upsertWritingSubmission(saved));
+      dispatch(fetchWritingSubmissions());
       setIsModalOpen(false);
     } catch (err: any) {
       setFormError(err.response?.data?.message || "Có lỗi xảy ra khi lưu bài viết.");
@@ -99,7 +96,7 @@ export default function WritingSubmissionPage() {
     setIsDeleting(true);
     try {
       await writingSubmissionService.delete(deletingSubmission.writing_id);
-      dispatch(removeWritingSubmission(deletingSubmission.writing_id));
+      dispatch(fetchWritingSubmissions());
       setDeletingSubmission(null);
     } catch (err: any) {
       alert(err.response?.data?.message || "Lỗi khi xóa bài viết.");

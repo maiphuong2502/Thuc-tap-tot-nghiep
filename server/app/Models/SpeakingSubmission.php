@@ -17,7 +17,9 @@ class SpeakingSubmission extends Model
     protected $fillable = [
         'speaking_id',
         'user_id',
+        'result_id',
         'question_id',
+        'group_id',
         'audio_url',
         'score',
     ];
@@ -51,5 +53,15 @@ class SpeakingSubmission extends Model
     public function question()
     {
         return $this->belongsTo(Question::class, 'question_id', 'question_id');
+    }
+
+    public function result()
+    {
+        return $this->belongsTo(Result::class, 'result_id', 'result_id');
+    }
+
+    public function group()
+    {
+        return $this->belongsTo(QuestionGroup::class, 'group_id', 'group_id');
     }
 }

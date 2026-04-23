@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import speakingSubmissionService from "../../services/speakingSubmissionService";
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
-import { upsertSpeakingSubmission, removeSpeakingSubmission } from "../../app/cacheSlice";
+import { fetchSpeakingSubmissions } from "../../app/cacheSlice";
 
 export default function SpeakingSubmissionPage() {
   const { speakingSubmissions, users, questions, loading } = useAppSelector(state => state.cache);
@@ -17,6 +17,7 @@ export default function SpeakingSubmissionPage() {
     speaking_id: "",
     user_id: "",
     question_id: "",
+    group_id: "",
     audio_url: "",
     score: "" as string | number,
   });
@@ -42,7 +43,7 @@ export default function SpeakingSubmissionPage() {
 
   const openAddModal = () => {
     setEditingSubmission(null);
-    setFormData({ speaking_id: "", user_id: "", question_id: "", audio_url: "", score: "" });
+    setFormData({ speaking_id: "", user_id: "", question_id: "", group_id: "", audio_url: "", score: "" });
     setFormError("");
     setIsModalOpen(true);
   };
@@ -52,7 +53,8 @@ export default function SpeakingSubmissionPage() {
     setFormData({
       speaking_id: s.speaking_id,
       user_id: s.user_id,
-      question_id: s.question_id,
+      question_id: s.question_id || "",
+      group_id: s.group_id || "",
       audio_url: s.audio_url,
       score: s.score ?? "",
     });
@@ -61,7 +63,7 @@ export default function SpeakingSubmissionPage() {
   };
 
   const handleSave = async () => {
-    if (!formData.user_id || !formData.question_id || !formData.audio_url) {
+    if (!formData.user_id || !formData.audio_url) {
       setFormError("Vui lòng nhập đầy đủ thông tin bắt buộc.");
       return;
     }
@@ -71,21 +73,19 @@ export default function SpeakingSubmissionPage() {
     try {
       const payload: any = {
         user_id: formData.user_id,
-        question_id: formData.question_id,
+        question_id: formData.question_id || null,
+        group_id: formData.group_id || null,
         audio_url: formData.audio_url,
         score: formData.score === "" ? null : Number(formData.score),
       };
 
-      let saved;
       if (editingSubmission) {
-        const res = await speakingSubmissionService.update(editingSubmission.speaking_id, payload);
-        saved = res.data.data;
+        await speakingSubmissionService.update(editingSubmission.speaking_id, payload);
       } else {
         if (formData.speaking_id) payload.speaking_id = formData.speaking_id;
-        const res = await speakingSubmissionService.create(payload);
-        saved = res.data.data;
+        await speakingSubmissionService.create(payload);
       }
-      dispatch(upsertSpeakingSubmission(saved));
+      dispatch(fetchSpeakingSubmissions());
       setIsModalOpen(false);
     } catch (err: any) {
       setFormError(err.response?.data?.message || "Có lỗi xảy ra khi lưu bài nói.");
@@ -99,7 +99,7 @@ export default function SpeakingSubmissionPage() {
     setIsDeleting(true);
     try {
       await speakingSubmissionService.delete(deletingSubmission.speaking_id);
-      dispatch(removeSpeakingSubmission(deletingSubmission.speaking_id));
+      dispatch(fetchSpeakingSubmissions());
       setDeletingSubmission(null);
     } catch (err: any) {
       alert(err.response?.data?.message || "Lỗi khi xóa bài nói.");
@@ -113,7 +113,7 @@ export default function SpeakingSubmissionPage() {
   const getAudioFullUrl = (url: string) => {
       if (!url) return "";
       if (url.startsWith('http')) return url;
-      // Giả sử audio lưu trong storage/audios hoặc thư mục tương tự
+      if (url.startsWith('/storage/')) return `http://localhost:8000${url}`;
       return `http://localhost:8000/storage/${url}`;
   };
 
@@ -189,7 +189,7 @@ export default function SpeakingSubmissionPage() {
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
               <thead>
                 <tr style={{ background: "#f8fafc" }}>
-                  {["STT", "Người dùng", "Mã Câu hỏi", "Điểm", "Ngày nộp", "Thao tác"].map((h, i) => (
+                  {["STT", "Người dùng", "Nhóm/Câu hỏi", "Điểm", "Ngày nộp", "Thao tác"].map((h, i) => (
                     <th key={i} style={{ padding: "10px 20px", textAlign: i === 5 ? "center" : "left", color: "#64748b", fontWeight: 600, fontSize: 12, letterSpacing: "0.05em", textTransform: "uppercase", borderBottom: "1px solid #e2e8f0" }}>
                       {h}
                     </th>
@@ -210,7 +210,10 @@ export default function SpeakingSubmissionPage() {
                       <td style={{ padding: "13px 20px", color: "#1e293b", fontWeight: 500 }}>
                         {getUserName(s.user_id)}
                       </td>
-                      <td style={{ padding: "13px 20px", color: "#475569" }}>{s.question_id}</td>
+                      <td style={{ padding: "13px 20px", color: "#475569" }}>
+                         <div style={{ fontSize: 12, fontWeight: 700 }}>{s.group_id}</div>
+                         <div style={{ fontSize: 10, color: "#94a3b8" }}>{s.question_id}</div>
+                      </td>
                       <td style={{ padding: "13px 20px" }}>
                         {s.score !== null ? (
                           <span style={{ background: "#f0fdf4", color: "#166534", padding: "4px 10px", borderRadius: 20, fontWeight: 700 }}>
@@ -255,8 +258,12 @@ export default function SpeakingSubmissionPage() {
                     <p style={{ margin: 0, fontSize: 14, fontWeight: 700 }}>{viewingSubmission.user_id} - {getUserName(viewingSubmission.user_id)}</p>
                   </div>
                   <div style={{ padding: 12, background: "#f8fafc", borderRadius: 8, border: "1px solid #e2e8f0" }}>
-                    <p style={{ margin: "0 0 4px", fontSize: 11, color: "#64748b", fontWeight: 600 }}>MÃ CÂU HỎI (Question ID)</p>
-                    <p style={{ margin: 0, fontSize: 14, fontWeight: 700 }}>{viewingSubmission.question_id}</p>
+                    <p style={{ margin: "0 0 4px", fontSize: 11, color: "#64748b", fontWeight: 600 }}>MÃ NHÓM (Group ID)</p>
+                    <p style={{ margin: 0, fontSize: 14, fontWeight: 700 }}>{viewingSubmission.group_id}</p>
+                  </div>
+                  <div style={{ padding: 12, background: "#f8fafc", borderRadius: 8, border: "1px solid #e2e8f0" }}>
+                    <p style={{ margin: "0 0 4px", fontSize: 11, color: "#64748b", fontWeight: 600 }}>CÂU HỎI (Question ID)</p>
+                    <p style={{ margin: 0, fontSize: 14, fontWeight: 700 }}>{viewingSubmission.question_id || "N/A"}</p>
                   </div>
                 </div>
                 
@@ -305,11 +312,12 @@ export default function SpeakingSubmissionPage() {
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: "block", marginBottom: 6, fontSize: 13, fontWeight: 600, color: "#475569" }}>Mã Câu hỏi *</label>
-                  <select className="form-control" value={formData.question_id} onChange={e => setFormData({...formData, question_id: e.target.value})}>
-                    <option value="">-- Chọn câu hỏi --</option>
-                    {questions.map(q => <option key={q.question_id} value={q.question_id}>{q.question_id}</option>)}
-                  </select>
+                  <label style={{ display: "block", marginBottom: 6, fontSize: 13, fontWeight: 600, color: "#475569" }}>Mã Nhóm (Group ID)</label>
+                  <input type="text" className="form-control" placeholder="Nhập mã nhóm..." value={formData.group_id} onChange={e => setFormData({...formData, group_id: e.target.value})} />
+                </div>
+                <div>
+                  <label style={{ display: "block", marginBottom: 6, fontSize: 13, fontWeight: 600, color: "#475569" }}>Mã Câu hỏi (Tùy chọn)</label>
+                  <input type="text" className="form-control" placeholder="Nhập mã câu hỏi..." value={formData.question_id} onChange={e => setFormData({...formData, question_id: e.target.value})} />
                 </div>
                 <div>
                   <label style={{ display: "block", marginBottom: 6, fontSize: 13, fontWeight: 600, color: "#475569" }}>Audio URL *</label>

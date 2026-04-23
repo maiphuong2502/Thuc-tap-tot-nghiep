@@ -89,4 +89,38 @@ class SpeakingSubmissionController extends Controller
             'message' => 'Bài nói đã được xóa thành công.',
         ]);
     }
+
+    /**
+     * Upload audio file from recording
+     */
+    public function uploadAudio(Request $request): JsonResponse
+    {
+        $request->validate([
+            'audio' => 'required|file|mimetypes:audio/mpeg,audio/mp3,audio/wav,audio/webm,audio/ogg,video/webm',
+        ]);
+
+        if ($request->hasFile('audio')) {
+            $file = $request->file('audio');
+            $originalName = $file->getClientOriginalName();
+            
+            // Nếu là Blob từ MediaRecorder, đặt tên mặc định .webm
+            if ($originalName === 'blob' || empty(pathinfo($originalName, PATHINFO_EXTENSION))) {
+                $filename = time() . '_' . uniqid() . '.webm';
+            } else {
+                $filename = time() . '_' . $originalName;
+            }
+
+            $path = $file->storeAs('speaking_submissions', $filename, 'public');
+
+            return response()->json([
+                'success' => true,
+                'file_path' => '/storage/' . $path,
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Không tìm thấy file audio.',
+        ], 400);
+    }
 }

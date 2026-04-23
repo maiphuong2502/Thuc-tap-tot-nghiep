@@ -17,7 +17,9 @@ class WritingSubmission extends Model
     protected $fillable = [
         'writing_id',
         'user_id',
+        'result_id',
         'question_id',
+        'group_id',
         'content',
         'score',
     ];
@@ -51,5 +53,10 @@ class WritingSubmission extends Model
     public function question()
     {
         return $this->belongsTo(Question::class, 'question_id', 'question_id');
+    }
+
+    public function group()
+    {
+        return $this->belongsTo(QuestionGroup::class, 'group_id', 'group_id');
     }
 }
