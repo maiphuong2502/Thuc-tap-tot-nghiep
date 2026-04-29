@@ -4,9 +4,10 @@ interface HighlightablePassageProps {
     content: string;
     autoHighlight?: boolean;
     autoTranslate?: boolean;
+    disableTranslation?: boolean;
 }
 
-const HighlightablePassage: React.FC<HighlightablePassageProps> = ({ content, autoHighlight, autoTranslate }) => {
+const HighlightablePassage: React.FC<HighlightablePassageProps> = ({ content, autoHighlight, autoTranslate, disableTranslation }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [htmlContent, setHtmlContent] = useState(content);
     const [menuVisible, setMenuVisible] = useState(false);
@@ -44,7 +45,7 @@ const HighlightablePassage: React.FC<HighlightablePassageProps> = ({ content, au
         if (selectedText.length > 0) {
             let shouldShowMenu = false;
 
-            if (autoTranslate) {
+            if (autoTranslate && !disableTranslation) {
                 // Check if it's 1 word (after cleaning punctuation)
                 const cleaned = selectedText.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").trim();
                 if (cleaned && !cleaned.includes(" ") && !cleaned.includes("\n")) {
@@ -201,25 +202,27 @@ const HighlightablePassage: React.FC<HighlightablePassageProps> = ({ content, au
                 >
                     {!translation && (
                         <>
-                            <button
-                                onClick={fetchTranslation}
-                                disabled={isTranslating}
-                                style={{
-                                    padding: '10px 16px', border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer',
-                                    fontSize: 14, fontWeight: 600, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: 8, transition: 'background 0.2s'
-                                }}
-                                onMouseOver={(e) => (e.currentTarget.style.background = '#f1f5f9')}
-                                onMouseOut={(e) => (e.currentTarget.style.background = 'transparent')}
-                            >
-                                <span>🌐</span>
-                                {isTranslating ? "Translating..." : "Translate Word"}
-                            </button>
+                            {!disableTranslation && (
+                                <button
+                                    onClick={() => fetchTranslation()}
+                                    disabled={isTranslating}
+                                    style={{
+                                        padding: '10px 16px', border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer',
+                                        fontSize: 14, fontWeight: 600, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: 8, transition: 'background 0.2s'
+                                    }}
+                                    onMouseOver={(e) => (e.currentTarget.style.background = '#f1f5f9')}
+                                    onMouseOut={(e) => (e.currentTarget.style.background = 'transparent')}
+                                >
+                                    <span>🌐</span>
+                                    {isTranslating ? "Translating..." : "Translate Word"}
+                                </button>
+                            )}
                             <button
                                 onClick={applyHighlight}
                                 style={{
                                     padding: '10px 16px', border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer',
                                     fontSize: 14, fontWeight: 600, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 8, transition: 'background 0.2s',
-                                    borderTop: '1px solid #f1f5f9'
+                                    borderTop: !disableTranslation ? '1px solid #f1f5f9' : 'none'
                                 }}
                                 onMouseOver={(e) => (e.currentTarget.style.background = '#f1f5f9')}
                                 onMouseOut={(e) => (e.currentTarget.style.background = 'transparent')}

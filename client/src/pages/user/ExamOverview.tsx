@@ -106,6 +106,31 @@ export default function ExamOverview() {
                         Quay Lại
                     </button>
                     <button 
+                        onClick={() => navigate(`/user/exam/${test.test_id}/mock`)}
+                        style={{
+                            padding: "16px 40px",
+                            background: "linear-gradient(135deg, #1e293b, #334155)",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: 12,
+                            fontWeight: 700,
+                            fontSize: 16,
+                            cursor: "pointer",
+                            boxShadow: "0 4px 14px 0 rgba(30, 41, 59, 0.39)",
+                            transition: "transform 0.2s, box-shadow 0.2s"
+                        }}
+                        onMouseOver={(e) => {
+                            e.currentTarget.style.transform = "translateY(-2px)";
+                            e.currentTarget.style.boxShadow = "0 6px 20px rgba(30,41,59,0.23)";
+                        }}
+                        onMouseOut={(e) => {
+                            e.currentTarget.style.transform = "translateY(0)";
+                            e.currentTarget.style.boxShadow = "0 4px 14px 0 rgba(30, 41, 59, 0.39)";
+                        }}
+                    >
+                        BẮT ĐẦU THI THỬ 🏆
+                    </button>
+                    <button 
                         onClick={() => navigate(`/user/exam/${test.test_id}/take`)}
                         style={{
                             padding: "16px 40px",
@@ -128,7 +153,7 @@ export default function ExamOverview() {
                             e.currentTarget.style.boxShadow = "0 4px 14px 0 rgba(59, 130, 246, 0.39)";
                         }}
                     >
-                        BẮT ĐẦU LÀM BÀI
+                        LUYỆN TẬP TỰ DO
                     </button>
                 </div>
             </div>

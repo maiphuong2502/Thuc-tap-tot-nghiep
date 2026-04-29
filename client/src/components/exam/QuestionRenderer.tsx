@@ -394,8 +394,39 @@ function MatchingExamUI({ question, value, onChange, mode, index }: any) {
     // Check if all pairs are correct
     const isAllCorrect = pairs.length > 0 && pairs.every(p => (selectedMap[p.answer_id] || "").toLowerCase() === (p.right_item || "").toLowerCase());
 
+    // Collect all available options from right_items
+    const optionsPool = Array.from(new Set(pairs.map((p: any) => p.right_item))).filter(Boolean).sort();
+
+    const handlePairChange = (answerId: string, val: string) => {
+        if (isReview) return;
+        const next = { ...selectedMap, [answerId]: val };
+        onChange(JSON.stringify(next));
+    };
+
+    const handleDragStart = (e: React.DragEvent, text: string) => {
+        e.dataTransfer.setData("text/plain", text);
+    };
+
+    const handleDrop = (e: React.DragEvent, answerId: string) => {
+        e.preventDefault();
+        const text = e.dataTransfer.getData("text/plain");
+        if (text) handlePairChange(answerId, text);
+    };
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+    };
+
+    const handleRemove = (answerId: string) => {
+        if (isReview) return;
+        const next = { ...selectedMap };
+        delete next[answerId];
+        onChange(JSON.stringify(next));
+    };
+
     return (
-        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            {/* 1. Header & Content */}
             <div style={{ display: "flex", gap: 12 }}>
                 <div style={{ 
                     fontSize: 18, fontWeight: 800, 
@@ -408,6 +439,7 @@ function MatchingExamUI({ question, value, onChange, mode, index }: any) {
                 </div>
             </div>
 
+            {/* 2. Questions & Drop Zones */}
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 {pairs.map((pair: any, idx: number) => {
                     const chosen = selectedMap[pair.answer_id] || "";
@@ -423,7 +455,8 @@ function MatchingExamUI({ question, value, onChange, mode, index }: any) {
                             border: isReview 
                                 ? (chosen === "" ? "2px solid #94a3b8" : (isCorrect ? "2px solid #22c55e" : "2px solid #ef4444")) 
                                 : (chosen ? "2px solid #3b82f6" : "1px dashed #cbd5e1"),
-                            borderRadius: 16
+                            borderRadius: 16,
+                            transition: "all 0.2s"
                         }}>
                             <span style={{ width: 28, height: 28, borderRadius: "50%", background: "#475569", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 13 }}>
                                 {idx + 1}
@@ -434,9 +467,27 @@ function MatchingExamUI({ question, value, onChange, mode, index }: any) {
                             <div style={{ fontSize: 20, color: "#94a3b8" }}>→</div>
                             
                             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                <div style={{ minWidth: 140, padding: "8px 16px", background: "#fff", borderRadius: 8, border: "1px solid #e2e8f0", fontWeight: 700, color: isReview ? (chosen === "" ? "#64748b" : (isCorrect ? "#15803d" : "#ef4444")) : "#1e40af", textAlign: "center" }}>
-                                    {chosen || (isReview ? "(Bỏ trống)" : "...")}
-                                </div>
+                                {isReview ? (
+                                    <div style={{ minWidth: 140, padding: "8px 16px", background: "#fff", borderRadius: 8, border: "1px solid #e2e8f0", fontWeight: 700, color: chosen === "" ? "#64748b" : (isCorrect ? "#15803d" : "#ef4444"), textAlign: "center" }}>
+                                        {chosen || "(Bỏ trống)"}
+                                    </div>
+                                ) : (
+                                    <div 
+                                        onDragOver={handleDragOver}
+                                        onDrop={(e) => handleDrop(e, pair.answer_id)}
+                                        onClick={() => chosen && handleRemove(pair.answer_id)}
+                                        style={{
+                                            minWidth: 160, minHeight: 40, padding: "8px 12px", borderRadius: 8,
+                                            border: chosen ? "2px solid #3b82f6" : "2px dashed #cbd5e1",
+                                            background: chosen ? "#fff" : "#f1f5f9",
+                                            display: "flex", alignItems: "center", justifyContent: "center",
+                                            fontWeight: 700, color: "#1e40af", cursor: chosen ? "pointer" : "default",
+                                            transition: "all 0.2s"
+                                        }}
+                                    >
+                                        {chosen || "Thả tại đây"}
+                                    </div>
+                                )}
                                 
                                 {isReview && !isCorrect && (
                                     <>
@@ -452,6 +503,37 @@ function MatchingExamUI({ question, value, onChange, mode, index }: any) {
                     );
                 })}
             </div>
+
+            {/* 3. Answers Pool (Draggable chip pool) */}
+            {!isReview && (
+                <div style={{ 
+                    marginTop: 10, padding: 20, background: "#f8fafc", borderRadius: 16, border: "1px solid #e2e8f0" 
+                }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#64748b", marginBottom: 12 }}>Kéo đáp án dưới đây thả vào ô trống:</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+                        {optionsPool.map((opt: string) => {
+                            // Mờ đi nếu đã được sử dụng
+                            const isUsed = Object.values(selectedMap).includes(opt);
+                            return (
+                                <div
+                                    key={opt}
+                                    draggable={!isUsed}
+                                    onDragStart={(e) => handleDragStart(e, opt)}
+                                    style={{
+                                        padding: "8px 16px", borderRadius: 8, background: isUsed ? "#e2e8f0" : "#fff",
+                                        border: "1px solid #cbd5e1", color: isUsed ? "#94a3b8" : "#1e293b",
+                                        fontWeight: 700, cursor: isUsed ? "not-allowed" : "grab",
+                                        boxShadow: isUsed ? "none" : "0 2px 4px rgba(0,0,0,0.05)",
+                                        opacity: isUsed ? 0.6 : 1, transition: "all 0.2s"
+                                    }}
+                                >
+                                    {opt}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

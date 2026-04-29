@@ -4,6 +4,7 @@ import axiosClient from "../../api/axiosClient";
 import userExamService from "../../services/userExamService";
 import QuestionRenderer from "../../components/exam/QuestionRenderer";
 import HighlightablePassage from "../../components/exam/HighlightablePassage";
+import VoiceRecorder from "../../components/exam/VoiceRecorder";
 
 export default function ExamTake() {
     const { id } = useParams<{ id: string }>();
@@ -21,6 +22,7 @@ export default function ExamTake() {
     const timerRef = useRef<any>(null);
 
     // Derived states
+    const [testStartTime] = useState<string>(new Date().toISOString());
     const [uniqueSkills, setUniqueSkills] = useState<any[]>([]);
 
     useEffect(() => {
@@ -105,7 +107,7 @@ export default function ExamTake() {
             const payload = {
                 test_id: test.test_id,
                 answers: answers,
-                start_time: new Date().toISOString()
+                start_time: testStartTime
             };
 
             const response: any = await axiosClient.post("/submit-test", payload);
@@ -296,9 +298,14 @@ export default function ExamTake() {
                 <div style={{ flex: 6, background: "#f1f5f9", overflowY: "auto", padding: "32px", display: "flex", flexDirection: "column", gap: 24 }}>
                     <h2 style={{ fontSize: 22, color: "#0f172a", margin: 0 }}>Câu trả lời của bạn</h2>
                     {currentPart?.question_groups?.map((group: any) => {
-                        const isWriting = currentPart.skill?.id === 'SK03' || currentPart.skill_id === 'SK03';
                         const groupAnswerKey = `GROUP_${group.group_id}`;
+                        const speechAnswerKey = `SPEECH_${group.group_id}`;
+                        
+                        const isSpeaking = currentPart.skill?.id === 'SK04' || currentPart.skill_id === 'SK04';
+                        const isWriting = currentPart.skill?.id === 'SK03' || currentPart.skill_id === 'SK03';
+                        
                         const writingValue = answers[groupAnswerKey] || "";
+                        const speechValue = answers[speechAnswerKey] || "";
                         const wordCount = writingValue.trim() === "" ? 0 : writingValue.trim().split(/\s+/).length;
 
                         return (
@@ -331,6 +338,12 @@ export default function ExamTake() {
                                             onBlur={(e) => e.target.style.borderColor = "#e2e8f0"}
                                         />
                                     </div>
+                                ) : isSpeaking ? (
+                                    <VoiceRecorder 
+                                        initialAudioUrl={speechValue ? `http://localhost:8000${speechValue}` : undefined}
+                                        onUploadSuccess={(url) => handleAnswerChange(speechAnswerKey, url)}
+                                        hidePlayer={true}
+                                    />
                                 ) : (
                                     group.questions?.map((q: any, i: number) => (
                                         <QuestionRenderer 
